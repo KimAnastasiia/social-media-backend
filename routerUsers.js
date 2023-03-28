@@ -4,13 +4,9 @@ const crypto = require('crypto');
 const routerUsers = express.Router();
 let keyEncrypt = 'password';
 let algorithm = 'aes256'
-mysqlConnection.connect((err)=> {
-    if(err){
-        console.log('Error ' +err);
-    } else{
-        console.log('Connected to database')
-    }
-});
+
+
+
 routerUsers.get("/privetData",(req,res,next)=>{
   
     mysqlConnection.query("SELECT email, name, surname, id, phoneNumber FROM users", (err, rows) => {

@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const routerUsers = express.Router();
 let keyEncrypt = 'password';
 let algorithm = 'aes256'
+
 mysqlConnection.connect((err)=> {
     if(err){
         console.log('Error ' +err);
@@ -13,7 +14,7 @@ mysqlConnection.connect((err)=> {
 });
 
 
-routerUsers.get("/privateData",(req,res,next)=>{
+routerUsers.get("/",(req,res,next)=>{
 
     let email = req.query.email
 
@@ -30,7 +31,7 @@ routerUsers.get("/privateData",(req,res,next)=>{
     })
 })
 
-routerUsers.post("/addUser",(req,res,next)=>{
+routerUsers.post("/",(req,res,next)=>{
 
     let email = req.body.email
     let password = req.body.password

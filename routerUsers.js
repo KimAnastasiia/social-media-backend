@@ -11,14 +11,20 @@ mysqlConnection.connect((err)=> {
         console.log('Connected to database')
     }
 });
-routerUsers.get("/privetData",(req,res,next)=>{
-  
-    mysqlConnection.query("SELECT email, name, surname, id, phoneNumber FROM users", (err, rows) => {
 
-        if (err)
+
+routerUsers.get("/privateData",(req,res,next)=>{
+
+    let email = req.query.email
+
+    mysqlConnection.query("SELECT email, name, surname, id, phoneNumber FROM user where email ='"+email+"' ", (err, rows) => {
+
+        if (err){
             res.send({error:err});
-        else
+            return 
+        } else {
             console.log(rows);
+        }
 
         res.send(rows)
     })

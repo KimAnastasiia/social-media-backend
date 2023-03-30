@@ -86,45 +86,63 @@ routerUsers.post("/",(req,res,next)=>{
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
 
-    mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"'  ) ", (errPost , rowsPost) => {
 
-        if (errPost){
-            res.send({error: errPost});
-            return ;
+    mysqlConnection.query("SELECT email FROM user where email ='"+email+"' ", (errUsedEmail, rowsUsedEmail) => {
+
+        if (errUsedEmail){
+            res.send({error:errUsedEmail});
+            return 
         }
-        mysqlConnection.query("SELECT * FROM user where email='"+email+"' and password='"+passwordEncript+"'", (err, rows) => {
+        if(rowsUsedEmail.length>0){
+            res.send({
+                messege:"email already in use",
+                error: "error"
+            });
+            return 
+        }else{
+            mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"'  ) ", (errPost , rowsPost) => {
+
+                if (errPost){
+                    res.send({error: errPost});
+                    return ;
+                }
+                mysqlConnection.query("SELECT * FROM user where email='"+email+"' and password='"+passwordEncript+"'", (err, rows) => {
+                    
+                    if (err){
+                        res.send({error: err});
+                        return ;
+                    }
+                   
+                    
+                    if(rows.length>=1){
             
-            if (err){
-                res.send({error: err});
-                return ;
-            }
-           
+                        let apiKey = jwt.sign(
+                            { 
+                                email: email,
+                                userId: rows[0].id
             
-            if(rows.length>=1){
-    
-                let apiKey = jwt.sign(
-                    { 
-                        email: email,
-                        userId: rows[0].id
-    
-                    },
-                    "secret");
-    
-                objectOfApiKey.push(apiKey)
-    
-                res.send(
-                {
-                    messege:"user",
-                    apiKey: apiKey,
-                    name:rows[0].name,
-                    userId: rows[0].id
+                            },
+                            "secret");
+            
+                        objectOfApiKey.push(apiKey)
+            
+                        res.send(
+                        {
+                            messege:"user",
+                            apiKey: apiKey,
+                            name:rows[0].name,
+                            userId: rows[0].id
+                        })
+                        return 
+                    }
+        
+            
                 })
-                return 
-            }
-
-    
-        })
-
+        
+            })
+        }
     })
+ 
+ 
 })
 module.exports=routerUsers

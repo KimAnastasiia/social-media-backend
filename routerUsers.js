@@ -67,9 +67,9 @@ routerUsers.post("/verification",(req,res,next)=>{
         }
         if(rows.length==0){
             res.send(
-                {
-                    messege:"Incorrect password",
-                })
+            {
+                messege:"Incorrect password",
+            })
         }
 
     }

@@ -8,6 +8,11 @@ const objectOfApiKey = require("./objectApiKey")
 var cors = require('cors')
 app.use(cors())
 
+// IMPORTANT for UPLOAD pictures
+var fileUpload = require('express-fileupload');
+app.use(fileUpload());
+
+
 app.use(express.json())
 const jwt = require("jsonwebtoken");
 

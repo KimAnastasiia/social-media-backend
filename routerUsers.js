@@ -13,7 +13,7 @@ routerUsers.get("/",(req,res,next)=>{
 
     let emailUser = req.query.email
 
-    mysqlConnection.query("SELECT email, name, surname, id, phoneNumber FROM user where email ='"+emailUser+"' ", (err, rows) => {
+    mysqlConnection.query("SELECT COUNT(name) as count FROM user where email ='"+emailUser+"' ", (err, rows) => {
 
         if (err){
             res.send({error:err});
@@ -44,7 +44,7 @@ routerUsers.get("/:name",(req,res,next)=>{
 })
 
 routerUsers.post("/verification",(req,res,next)=>{
-    let emailUser = req.body.email
+    let emailUser = req.body.email  
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
@@ -76,7 +76,8 @@ routerUsers.post("/verification",(req,res,next)=>{
                 messege:"user",
                 apiKey: apiKey,
                 name:rows[0].name,
-                userId: rows[0].id
+                userId: rows[0].id,
+                email: rows[0].email
             })
         }
         if(rows.length==0){

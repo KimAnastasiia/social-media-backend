@@ -26,6 +26,23 @@ routerUsers.get("/",(req,res,next)=>{
     })
 })
 
+routerUsers.get("/:name",(req,res,next)=>{
+
+    let name = req.params.name
+    
+    mysqlConnection.query("SELECT * FROM user WHERE uniqueName LIKE '"+name+"%'", (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+
+        res.send(rows)
+    })
+})
+
 routerUsers.post("/verification",(req,res,next)=>{
     let emailUser = req.body.email
     let password = req.body.password

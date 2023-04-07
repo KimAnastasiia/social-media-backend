@@ -12,35 +12,47 @@ const jwt = require("jsonwebtoken");
 routerUsers.get("/",(req,res,next)=>{
 
     let emailUser = req.query.email
+    let name = req.query.name
 
-    mysqlConnection.query("SELECT COUNT(name) as count FROM user where email ='"+emailUser+"' ", (err, rows) => {
+    if(emailUser!=undefined){
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
+        mysqlConnection.query("SELECT name, id, uniqueName FROM user where email ='"+emailUser+"' ", (err, rows) => {
 
-        res.send(rows)
-    })
-})
+            if (err){
+                res.send({error:err});
+                return 
+            } else {
+                console.log(rows);
+            }
 
-routerUsers.get("/:name",(req,res,next)=>{
+            res.send(rows)
+        })
+    }else if(name!=undefined){
 
-    let name = req.params.name
-    
-    mysqlConnection.query("SELECT * FROM user WHERE uniqueName LIKE '"+name+"%'", (err, rows) => {
+        mysqlConnection.query("SELECT  name, id, uniqueName FROM user WHERE uniqueName LIKE '"+name+"%'", (err, rows) => {
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
+            if (err){
+                res.send({error:err});
+                return 
+            } else {
+                console.log(rows);
+            }
 
-        res.send(rows)
-    })
+            res.send(rows)
+        })
+    } else {
+        mysqlConnection.query("SELECT name, id, uniqueName FROM user", (err, rows) => {
+
+            if (err){
+                res.send({error:err});
+                return 
+            } else {
+                console.log(rows);
+            }
+
+            res.send(rows)
+        }) 
+    }
 })
 
 routerUsers.post("/verification",(req,res,next)=>{

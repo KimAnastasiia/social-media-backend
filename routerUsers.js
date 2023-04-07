@@ -55,6 +55,23 @@ routerUsers.get("/",(req,res,next)=>{
     }
 })
 
+routerUsers.get("/:uniqueName",(req,res,next)=>{
+
+    let uniqueName = req.params.uniqueName
+
+    mysqlConnection.query("SELECT name, id, uniqueName FROM user where uniqueName='"+uniqueName+"'", (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+
+        res.send(rows)
+    })
+})
+
 routerUsers.post("/verification",(req,res,next)=>{
     let emailUser = req.body.email  
     let password = req.body.password

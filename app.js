@@ -17,7 +17,7 @@ app.use(fileUpload());
 
 app.use(express.json())
 const jwt = require("jsonwebtoken");
-
+/** 
 app.use(["/mediaPost"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
@@ -34,7 +34,7 @@ app.use(["/mediaPost"] ,(req,res,next)=>{
 
     next()
 })
-
+*/
 
 app.use("/users", routerUsers)
 app.use("/mediaPost", routerMediaPost)

@@ -3,44 +3,37 @@ const mysqlConnection = require("./mysqlConnection")
 const crypto = require('crypto');
 const routerMediaPost = express.Router();
 const sharp = require('sharp');
+const objectOfApiKey = require("./objectApiKey")
+const jwt = require("jsonwebtoken");
+
 routerMediaPost.get("/",(req,res,next)=>{
+    
+    let sqlQuery="SELECT * FROM post"
 
-    let emailUser = req.query.email
+    let userId = req.query.userId
+    if (userId!=undefined){
+        sqlQuery= "SELECT * FROM post where userId="+userId
+    }
+ 
 
-    mysqlConnection.query("SELECT name FROM user where email ='"+emailUser+"' ", (err, rows) => {
-
+    mysqlConnection.query(sqlQuery, (err, rows) => {
         if (err){
             res.send({error:err});
             return 
         } else {
             console.log(rows);
         }
-
         res.send(rows)
     })
+  
 })
 
-
-routerMediaPost.get("/post",(req,res,next)=>{
-
-    mysqlConnection.query("SELECT * FROM post where userId =" + req.infoInToken.userId, (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
-})
 
 routerMediaPost.get("/:id",(req,res,next)=>{
 
     let id = req.params.id
 
-    mysqlConnection.query("SELECT * FROM post where id="+id+" and userId="+req.infoInToken.userId, (err, rows) => {
+    mysqlConnection.query("SELECT * FROM post where id="+id+"", (err, rows) => {
 
         if (err){
             res.send({error:err});
@@ -54,9 +47,22 @@ routerMediaPost.get("/:id",(req,res,next)=>{
 })
 
 routerMediaPost.post('/', (req, res) => {
+
     const d = Date.now();
     let img = req.files.myImage
     let comment = req.body.comment
+    let apiKey = req.query.apiKey
+  
+    let obj = objectOfApiKey.find((obj)=>
+      obj===apiKey
+    )
+    if(!obj){
+        res.send({error:"error"})
+        return
+    }
+    
+    let infoInToken = jwt.verify(apiKey, "secret");
+    req.infoInToken = infoInToken;
 
     mysqlConnection.query("INSERT INTO post (userId, comment, date) VALUES  ( "+ req.infoInToken.userId+", '"+comment+"', "+ d+") ", (errPost , rowsPost) => {
 

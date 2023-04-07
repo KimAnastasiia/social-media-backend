@@ -13,7 +13,8 @@ routerUsers.get("/",(req,res,next)=>{
 
     let emailUser = req.query.email
     let name = req.query.name
-
+    let id= req.query.id
+    
     if(emailUser!=undefined){
 
         mysqlConnection.query("SELECT name, id, uniqueName FROM user where email ='"+emailUser+"' ", (err, rows) => {
@@ -40,7 +41,20 @@ routerUsers.get("/",(req,res,next)=>{
 
             res.send(rows)
         })
-    } else {
+    }else if(id!=undefined){
+        
+        mysqlConnection.query("SELECT name, id, uniqueName, email FROM user where id ="+id, (err, rows) => {
+
+            if (err){
+                res.send({error:err});
+                return 
+            } else {
+                console.log(rows);
+            }
+
+            res.send(rows)
+        })
+    }else {
         mysqlConnection.query("SELECT name, id, uniqueName FROM user", (err, rows) => {
 
             if (err){
@@ -59,7 +73,7 @@ routerUsers.get("/:uniqueName",(req,res,next)=>{
 
     let uniqueName = req.params.uniqueName
 
-    mysqlConnection.query("SELECT name, id, uniqueName FROM user where uniqueName='"+uniqueName+"'", (err, rows) => {
+    mysqlConnection.query("SELECT name, id, email, uniqueName from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
 
         if (err){
             res.send({error:err});

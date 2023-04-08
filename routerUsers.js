@@ -120,7 +120,8 @@ routerUsers.post("/verification",(req,res,next)=>{
                 apiKey: apiKey,
                 name:rows[0].name,
                 userId: rows[0].id,
-                email: rows[0].email
+                email: rows[0].email,
+                uniqueName: rows[0].uniqueName
             })
         }
         if(rows.length==0){

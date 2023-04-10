@@ -10,6 +10,7 @@ app.use(cors())
 const objectOfApiKey = require("./objectApiKey")
 const routerUsers =  require("./routerUsers")
 const routerMediaPost = require('./routerMediaPost');
+const routerComments = require("./routerComments")
 // IMPORTANT for UPLOAD pictures
 var fileUpload = require('express-fileupload');
 app.use(fileUpload());
@@ -38,6 +39,7 @@ app.use(["/mediaPost"] ,(req,res,next)=>{
 
 app.use("/users", routerUsers)
 app.use("/mediaPost", routerMediaPost)
+app.use("/comments", routerComments)
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

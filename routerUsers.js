@@ -14,59 +14,33 @@ routerUsers.get("/",(req,res,next)=>{
     let emailUser = req.query.email
     let name = req.query.name
     let id= req.query.id
-    
+
+    let sqlQuery="SELECT name, id, uniqueName FROM user"
+
     if(emailUser!=undefined){
-
-        mysqlConnection.query("SELECT name, id, uniqueName FROM user where email ='"+emailUser+"' ", (err, rows) => {
-
-            if (err){
-                res.send({error:err});
-                return 
-            } else {
-                console.log(rows);
-            }
-
-            res.send(rows)
-        })
-    }else if(name!=undefined){
-
-        mysqlConnection.query("SELECT  name, id, uniqueName FROM user WHERE uniqueName LIKE '"+name+"%'", (err, rows) => {
-
-            if (err){
-                res.send({error:err});
-                return 
-            } else {
-                console.log(rows);
-            }
-
-            res.send(rows)
-        })
-    }else if(id!=undefined){
-        
-        mysqlConnection.query("SELECT name, id, uniqueName, email FROM user where id ="+id, (err, rows) => {
-
-            if (err){
-                res.send({error:err});
-                return 
-            } else {
-                console.log(rows);
-            }
-
-            res.send(rows)
-        })
-    }else {
-        mysqlConnection.query("SELECT name, id, uniqueName FROM user", (err, rows) => {
-
-            if (err){
-                res.send({error:err});
-                return 
-            } else {
-                console.log(rows);
-            }
-
-            res.send(rows)
-        }) 
+        sqlQuery="SELECT name, id, uniqueName FROM user where email ='"+emailUser+"' "
     }
+  
+    if(name!=undefined){
+        sqlQuery="SELECT  name, id, uniqueName FROM user WHERE uniqueName LIKE '"+name+"%'"
+    }
+    
+    if(id!=undefined){
+        sqlQuery="SELECT name, id, uniqueName, email FROM user where id ="+id
+    }
+
+    mysqlConnection.query(sqlQuery, (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+
+        res.send(rows)
+    })
+ 
 })
 
 routerUsers.get("/:uniqueName",(req,res,next)=>{

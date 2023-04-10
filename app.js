@@ -11,6 +11,7 @@ const objectOfApiKey = require("./objectApiKey")
 const routerUsers =  require("./routerUsers")
 const routerMediaPost = require('./routerMediaPost');
 const routerComments = require("./routerComments")
+const routerPublicComments= require("./routerPublicComments")
 // IMPORTANT for UPLOAD pictures
 var fileUpload = require('express-fileupload');
 app.use(fileUpload());
@@ -40,7 +41,7 @@ app.use(["/mediaPost"] ,(req,res,next)=>{
 app.use("/users", routerUsers)
 app.use("/mediaPost", routerMediaPost)
 app.use("/comments", routerComments)
-
+app.use("/public/comments", routerPublicComments)
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

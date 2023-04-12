@@ -22,4 +22,27 @@ routerComments.delete("/:id",(req,res)=>{
     }
 )})
 
+routerComments.post('/', (req, res) => {
+
+    let postId  = req.body.postId
+    let comment  = req.body.comment
+    const d = Date.now();
+    
+    mysqlConnection.query("INSERT INTO comment ( userId, postId, comment, date ) VALUES ("+req.infoInToken.id+","+postId+",'"+comment+"',"+d+") ", (err, rows) => {
+
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+        res.send(
+            {
+                messege:"done",
+                rows: rows
+            })
+        }
+    })
+
+})
+
 module.exports=routerComments

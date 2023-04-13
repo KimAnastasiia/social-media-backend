@@ -44,5 +44,28 @@ routerComments.post('/', (req, res) => {
     })
 
 })
+routerComments.put('/:id', (req, res) => {
+
+    let comment = req.body.comment
+    let postId = req.body.postId
+    let id = req.params.id
+    mysqlConnection.query("UPDATE comment SET comment= '"+comment+"' WHERE postId= "+postId+" and userId="+req.infoInToken.userId+" and id="+id, (err, rows) => {
+
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+        res.send(
+            {
+                messege:"done",
+                rows: rows,
+              
+            })
+        }
+    })
+
+})
+
 
 module.exports=routerComments

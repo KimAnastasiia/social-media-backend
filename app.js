@@ -12,6 +12,7 @@ const routerUsers =  require("./routerUsers")
 const routerMediaPost = require('./routerMediaPost');
 const routerComments = require("./routerComments")
 const routerPublicComments= require("./routerPublicComments")
+const routerCommentLikes = require('./routerCommentLikes');
 // IMPORTANT for UPLOAD pictures
 var fileUpload = require('express-fileupload');
 app.use(fileUpload());
@@ -20,7 +21,7 @@ app.use(fileUpload());
 app.use(express.json())
 const jwt = require("jsonwebtoken");
 
-app.use(["/comments"] ,(req,res,next)=>{
+app.use(["/comments", "/likes"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
     let obj = objectOfApiKey.find((obj)=>
@@ -37,7 +38,7 @@ app.use(["/comments"] ,(req,res,next)=>{
     next()
 })
 
-
+app.use("/likes", routerCommentLikes)
 app.use("/users", routerUsers)
 app.use("/mediaPost", routerMediaPost)
 app.use("/comments", routerComments)

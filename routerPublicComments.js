@@ -6,7 +6,23 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
+routerPublicComments.get("/",(req,res,next)=>{
+ 
 
+    mysqlConnection.query(`SELECT comment.*, COUNT(likesforcomments.id) as totalLikes FROM comment 
+    left JOIN likesforcomments
+    ON comment.id = likesforcomments.commentId 
+    GROUP BY comment.id`, (err, rows) => {
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+        res.send(rows)
+    })
+  
+})
 routerPublicComments.get("/:postId",(req,res,next)=>{
  
     let postId=req.params.postId

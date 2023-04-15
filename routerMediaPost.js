@@ -118,4 +118,48 @@ routerMediaPost.post('/', (req, res) => {
 
 })
 
+routerMediaPost.delete('/:postId', (req, res) => {
+    let postId = req.params.postId
+    let apiKey = req.query.apiKey
+    let obj = objectOfApiKey.find((obj)=>
+      obj===apiKey
+    )
+    if(!obj){
+        res.send({error:"error"})
+        return
+    }
+    
+    let infoInToken = jwt.verify(apiKey, "secret");
+    req.infoInToken = infoInToken;
+    mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+"",(errLikesForComments,rowsLikesForComments)=>{
+        if (errLikesForComments){
+            res.send({error: errLikesForComments});
+            return ;
+        }
+        else{
+            mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+"",(errComments,rowsComments)=>{
+                if (errComments){
+                    res.send({error: errComments});
+                    return ;
+                }
+                else{
+                    mysqlConnection.query("DELETE FROM post WHERE id="+postId+"",(err,rows)=>{
+                        if (err){
+                            res.send({error: err});
+                            return ;
+                        }
+                        else{
+                            console.log(rows)
+                        }
+                        res.send({messege:"done"})
+                    })
+              
+                }
+              
+            })
+        }
+       
+    })
+})
+
 module.exports=routerMediaPost

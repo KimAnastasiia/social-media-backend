@@ -6,7 +6,19 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
+routerCommentLikes.get("/",(req,res,next)=>{
 
+    mysqlConnection.query(`SELECT * from likesforcomments WHERE userId=`+req.infoInToken.userId, (err, rows) => {
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+        res.send(rows)
+    })
+  
+})
 
 routerCommentLikes.post('/', (req, res) => {
 

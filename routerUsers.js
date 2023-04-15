@@ -164,7 +164,8 @@ routerUsers.post("/",(req,res,next)=>{
                             messege:"user",
                             apiKey: apiKey,
                             name:rows[0].name,
-                            userId: rows[0].id
+                            userId: rows[0].id,
+                            uniqueName:  rows[0].uniqueName,
                         })
                         return 
                     }

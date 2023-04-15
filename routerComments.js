@@ -7,20 +7,55 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
 
-routerComments.delete("/:id/:commentId",(req,res)=>{
+routerComments.delete("/:id/:commentId/:userIdOfPublication",(req,res)=>{
     let postId = req.params.id
     let id = req.params.commentId
-    mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+" and userId="+req.infoInToken.userId+" and id="+id,(err,rows)=>{
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-            console.log(rows)
-        }
-        res.send({messege:"done"})
+    let userIdOfPublication = req.params.userIdOfPublication
+
+    if(userIdOfPublication==req.infoInToken.userId){
+
+        mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+" and commentId="+id,(errLikesForComments,rowsLikesForComments)=>{
+            if (errLikesForComments){
+                res.send({error: errLikesForComments});
+                return ;
+            }
+            else{
+                mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+" and id="+id,(err,rows)=>{
+                    if (err){
+                        res.send({error: err});
+                        return ;
+                    }
+                    else{
+                        console.log(rows)
+                    }
+                    res.send({messege:"done"})
+                })
+            }
+        })
+    }else{
+        mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+" and commentId="+id,(errLikesForComments,rowsLikesForComments)=>{
+            if (errLikesForComments){
+                res.send({error: errLikesForComments});
+                return ;
+            }
+            else{
+                mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+" and userId="+req.infoInToken.userId+" and id="+id,(err,rows)=>{
+                    if (err){
+                        res.send({error: err});
+                        return ;
+                    }
+                    else{
+                        console.log(rows)
+                    }
+                    res.send({messege:"done"})
+                })
+            }
+           
+        })
+      
     }
-)})
+
+})
 
 routerComments.post('/', (req, res) => {
 

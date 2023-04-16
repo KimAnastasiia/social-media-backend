@@ -20,8 +20,9 @@ app.use(fileUpload());
 
 app.use(express.json())
 const jwt = require("jsonwebtoken");
+const routerPublicMediaPost = require('./routerPublicMediaPost');
 
-app.use(["/comments", "/likes"] ,(req,res,next)=>{
+app.use(["/comments", "/likes", "/mediaPost"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
     let obj = objectOfApiKey.find((obj)=>
@@ -43,6 +44,10 @@ app.use("/users", routerUsers)
 app.use("/mediaPost", routerMediaPost)
 app.use("/comments", routerComments)
 app.use("/public/comments", routerPublicComments)
+app.use("/public/mediaPost", routerPublicMediaPost)
+
+
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

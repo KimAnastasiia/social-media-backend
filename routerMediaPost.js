@@ -6,63 +6,12 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
-routerMediaPost.get("/",(req,res,next)=>{
-    
-    let sqlQuery="SELECT * FROM post"
-
-    let userId = req.query.userId
-    if (userId!=undefined){
-        sqlQuery= "SELECT * FROM post where userId="+userId
-    }
- 
-
-    mysqlConnection.query(sqlQuery, (err, rows) => {
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-        res.send(rows)
-    })
-  
-})
-
-
-routerMediaPost.get("/:id",(req,res,next)=>{
-
-    let id = req.params.id
-
-    mysqlConnection.query("SELECT * FROM post where id="+id+"", (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
-})
 
 routerMediaPost.post('/', (req, res) => {
 
     const d = Date.now();
     let img = req.files.myImage
     let comment = req.body.comment
-    let apiKey = req.query.apiKey
-  
-    let obj = objectOfApiKey.find((obj)=>
-      obj===apiKey
-    )
-    if(!obj){
-        res.send({error:"error"})
-        return
-    }
-    
-    let infoInToken = jwt.verify(apiKey, "secret");
-    req.infoInToken = infoInToken;
 
     mysqlConnection.query("INSERT INTO post (userId, comment, date) VALUES  ( "+ req.infoInToken.userId+", '"+comment+"', "+ d+") ", (errPost , rowsPost) => {
 
@@ -123,18 +72,6 @@ routerMediaPost.post('/like', (req, res) => {
 
     let postId  = req.body.postId
 
-    let apiKey = req.query.apiKey
-  
-    let obj = objectOfApiKey.find((obj)=>
-      obj===apiKey
-    )
-    if(!obj){
-        res.send({error:"error"})
-        return
-    }
-    
-    let infoInToken = jwt.verify(apiKey, "secret");
-    req.infoInToken = infoInToken;
     mysqlConnection.query("INSERT INTO likesofpost ( userId, postId ) VALUES ("+req.infoInToken.userId+","+postId+") ", (err, rows) => {
 
         if (err){
@@ -153,17 +90,7 @@ routerMediaPost.post('/like', (req, res) => {
 })
 routerMediaPost.delete('/:postId', (req, res) => {
     let postId = req.params.postId
-    let apiKey = req.query.apiKey
-    let obj = objectOfApiKey.find((obj)=>
-      obj===apiKey
-    )
-    if(!obj){
-        res.send({error:"error"})
-        return
-    }
-    
-    let infoInToken = jwt.verify(apiKey, "secret");
-    req.infoInToken = infoInToken;
+
     mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+"",(errLikesForComments,rowsLikesForComments)=>{
         if (errLikesForComments){
             res.send({error: errLikesForComments});

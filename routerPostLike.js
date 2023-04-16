@@ -11,21 +11,41 @@ const jwt = require("jsonwebtoken");
 routerPostLike.post('/', (req, res) => {
 
     let postId  = req.body.postId
+    mysqlConnection.query("SELECT * FROM likesofpost WHERE userId = "+req.infoInToken.userId+" AND postId = "+postId+"", (errLikesOfPost, rowsLikesOfPost) => {
 
-    mysqlConnection.query("INSERT INTO likesofpost ( userId, postId ) VALUES ("+req.infoInToken.userId+","+postId+") ", (err, rows) => {
+        if (errLikesOfPost){
+            res.send({error:errLikesOfPost});
+            return 
+        }  
+        if(rowsLikesOfPost.length==0){
+            mysqlConnection.query("INSERT INTO likesofpost ( userId, postId ) VALUES ("+req.infoInToken.userId+","+postId+") ", (err, rows) => {
 
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-        res.send(
-            {
-                messege:"done",
-                rows: rows
+                if (err){
+                    res.send({error: err});
+                    return ;
+                }
+                else{
+                res.send(
+                    {
+                        messege:"done",
+                        rows: rows
+                    })
+                }
+            })
+        }else{
+            mysqlConnection.query("DELETE FROM likesofpost WHERE postId="+postId+" and userId="+req.infoInToken.userId+"",(err,rows)=>{
+                if (err){
+                    res.send({error: err});
+                    return ;
+                }
+                else{
+                    console.log(rows)
+                }
+                res.send({messege:"done"})
             })
         }
     })
+    
 
 })
 

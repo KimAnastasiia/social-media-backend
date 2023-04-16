@@ -7,6 +7,22 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
+routerPostLike.get("/:postId",(req,res,next)=>{
+
+    let postId = req.params.postId
+
+    mysqlConnection.query("SELECT * from likesofpost where userId="+req.infoInToken.userId+" and postId="+postId, (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+
+        res.send(rows)
+    })
+})
 
 routerPostLike.post('/', (req, res) => {
 

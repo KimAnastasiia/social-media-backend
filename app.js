@@ -22,6 +22,7 @@ app.use(express.json())
 const jwt = require("jsonwebtoken");
 const routerPublicMediaPost = require('./routerPublicMediaPost');
 const routerPostLike = require('./routerPostLike');
+const routerPublicPostLike = require('./routerPublicPostLike');
 
 app.use(["/comments", "/likes", "/mediaPost", "/postLikes"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
@@ -47,7 +48,7 @@ app.use("/comments", routerComments)
 app.use("/public/comments", routerPublicComments)
 app.use("/public/mediaPost", routerPublicMediaPost)
 app.use("/postLikes", routerPostLike)
-
+app.use("/public/postLikes", routerPublicPostLike)
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

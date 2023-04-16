@@ -8,7 +8,7 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
 
-routerPostLike.post('/like', (req, res) => {
+routerPostLike.post('/', (req, res) => {
 
     let postId  = req.body.postId
 

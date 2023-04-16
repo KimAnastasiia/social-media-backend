@@ -21,8 +21,9 @@ app.use(fileUpload());
 app.use(express.json())
 const jwt = require("jsonwebtoken");
 const routerPublicMediaPost = require('./routerPublicMediaPost');
+const routerPostLike = require('./routerPostLike');
 
-app.use(["/comments", "/likes", "/mediaPost"] ,(req,res,next)=>{
+app.use(["/comments", "/likes", "/mediaPost", "/postLikes"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
     let obj = objectOfApiKey.find((obj)=>
@@ -45,7 +46,7 @@ app.use("/mediaPost", routerMediaPost)
 app.use("/comments", routerComments)
 app.use("/public/comments", routerPublicComments)
 app.use("/public/mediaPost", routerPublicMediaPost)
-
+app.use("/postLikes", routerPostLike)
 
 
 app.listen(port, () => {

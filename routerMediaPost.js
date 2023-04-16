@@ -118,6 +118,39 @@ routerMediaPost.post('/', (req, res) => {
 
 })
 
+
+routerMediaPost.post('/like', (req, res) => {
+
+    let postId  = req.body.postId
+
+    let apiKey = req.query.apiKey
+  
+    let obj = objectOfApiKey.find((obj)=>
+      obj===apiKey
+    )
+    if(!obj){
+        res.send({error:"error"})
+        return
+    }
+    
+    let infoInToken = jwt.verify(apiKey, "secret");
+    req.infoInToken = infoInToken;
+    mysqlConnection.query("INSERT INTO likesofpost ( userId, postId ) VALUES ("+req.infoInToken.userId+","+postId+") ", (err, rows) => {
+
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+        res.send(
+            {
+                messege:"done",
+                rows: rows
+            })
+        }
+    })
+
+})
 routerMediaPost.delete('/:postId', (req, res) => {
     let postId = req.params.postId
     let apiKey = req.query.apiKey

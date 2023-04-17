@@ -8,7 +8,7 @@ app.use(cors())
 
 
 const objectOfApiKey = require("./objectApiKey")
-const routerUsers =  require("./routerUsers")
+const routerUsers =  require("./routerPublicUsers")
 const routerMediaPost = require('./routerMediaPost');
 const routerComments = require("./routerComments")
 const routerPublicComments= require("./routerPublicComments")
@@ -23,8 +23,9 @@ const jwt = require("jsonwebtoken");
 const routerPublicMediaPost = require('./routerPublicMediaPost');
 const routerPostLike = require('./routerPostLike');
 const routerPublicPostLike = require('./routerPublicPostLike');
+const routerPublicUsers = require('./routerPublicUsers');
 
-app.use(["/comments", "/likes", "/mediaPost", "/postLikes"] ,(req,res,next)=>{
+app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
     let obj = objectOfApiKey.find((obj)=>
@@ -42,14 +43,14 @@ app.use(["/comments", "/likes", "/mediaPost", "/postLikes"] ,(req,res,next)=>{
 })
 
 app.use("/likes", routerCommentLikes)
-app.use("/users", routerUsers)
+app.use("/public/users", routerPublicUsers)
 app.use("/mediaPost", routerMediaPost)
 app.use("/comments", routerComments)
 app.use("/public/comments", routerPublicComments)
 app.use("/public/mediaPost", routerPublicMediaPost)
 app.use("/postLikes", routerPostLike)
 app.use("/public/postLikes", routerPublicPostLike)
-
+app.use("/users", routerUsers)
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

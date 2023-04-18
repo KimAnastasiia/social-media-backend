@@ -29,22 +29,22 @@ routerMediaPost.post('/', (req, res) => {
             if(rowsUser.length>0){
                 if (img != null) {
 
-                    img.mv('public/images/' + req.infoInToken.userId.toString() +req.infoInToken.email + rowsPost.insertId.toString()  +'.png', 
+                    img.mv('public/images/' + req.infoInToken.userId.toString()+ rowsPost.insertId.toString()  +'.png', 
                         function(err) {
                             if (err) {
                                 res.send("Error in upload picture");
                             } else{
 
-                                sharp('public/images/' + req.infoInToken.userId.toString() +req.infoInToken.email + rowsPost.insertId.toString()  +'.png')
+                                sharp('public/images/' + req.infoInToken.userId.toString() + rowsPost.insertId.toString()  +'.png')
                                 .resize(309,309)
-                                .toFile('public/images/' + req.infoInToken.userId.toString() +req.infoInToken.email + rowsPost.insertId.toString()  +'mini.png', (errMini, infoMini) => {
+                                .toFile('public/images/' + req.infoInToken.userId.toString()+ rowsPost.insertId.toString()  +'mini.png', (errMini, infoMini) => {
                                     if (errMini) {
                                         console.error(errMini);
                                         res.send("Error in resize picture");
                                     } else {
-                                        sharp('public/images/' + req.infoInToken.userId.toString() +req.infoInToken.email + rowsPost.insertId.toString()  +'.png')
+                                        sharp('public/images/' + req.infoInToken.userId.toString() + rowsPost.insertId.toString()  +'.png')
                                         .resize(1080,1350)
-                                        .toFile('public/images/' + req.infoInToken.userId.toString() +req.infoInToken.email + rowsPost.insertId.toString()  +'big.png', (err, info) => {
+                                        .toFile('public/images/' + req.infoInToken.userId.toString()+ rowsPost.insertId.toString()  +'big.png', (err, info) => {
                                             if (err) {
                                                 console.error(err);
                                             } else {

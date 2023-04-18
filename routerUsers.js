@@ -23,5 +23,27 @@ routerUsers.get("/",(req,res,next)=>{
     })
 })
 
+routerUsers.put("/",(req,res,next)=>{
+
+    let name = req.body.name
+    let surname = req.body.surname
+    let phoneNumber = req.body.phoneNumber
+    let email = req.body.email
+    let uniqueName = req.body.uniqueName
+    let presentation = req.body.presentation
+
+    mysqlConnection.query("UPDATE user SET name= '"+name+"', surname='"+surname+"', phoneNumber='"+phoneNumber+"', email='"+email+"', uniqueName='"+uniqueName+"', presentation='"+presentation+"' where id= "+req.infoInToken.userId, (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+
+        res.send(rows)
+    })
+})
+
 
 module.exports=routerUsers

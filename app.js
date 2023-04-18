@@ -8,7 +8,7 @@ app.use(cors())
 
 
 const objectOfApiKey = require("./objectApiKey")
-const routerUsers =  require("./routerPublicUsers")
+const routerUsers =  require("./routerUsers")
 const routerMediaPost = require('./routerMediaPost');
 const routerComments = require("./routerComments")
 const routerPublicComments= require("./routerPublicComments")

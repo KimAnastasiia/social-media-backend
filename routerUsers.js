@@ -6,6 +6,7 @@ let keyEncrypt = 'password';
 let algorithm = 'aes256'
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
+const sharp = require('sharp');
 
 routerUsers.get("/",(req,res,next)=>{
 
@@ -24,7 +25,7 @@ routerUsers.get("/",(req,res,next)=>{
 })
 
 routerUsers.put("/",(req,res,next)=>{
-
+    let img = req.files.myImage
     let name = req.body.name
     let surname = req.body.surname
     let phoneNumber = req.body.phoneNumber
@@ -38,11 +39,32 @@ routerUsers.put("/",(req,res,next)=>{
             res.send({error:err});
             return 
         } else {
+            if (img != null) {
+                img.mv('public/images/' + req.infoInToken.userId.toString()+'.png', 
+                    function(err) {
+                        if (err) {
+                            res.send("Error in upload picture");
+                        } else{
+                            sharp('public/images/' + req.infoInToken.userId.toString()  +'.png')
+                            .resize(309,309)
+                            .toFile('public/images/' + req.infoInToken.userId.toString() +'avatar.png', (errMini, infoMini) => {
+                                if (errMini) {
+                                    console.error(errMini);
+                                    res.send("Error in resize picture");
+                                } else {
+                                    res.send({message:"done"});
+                                }
+                            })
+                           
+                        }
+                    }
+                )
+            }
             console.log(rows);
         }
 
-        res.send(rows)
     })
+
 })
 
 

@@ -66,6 +66,24 @@ routerUsers.put("/",(req,res,next)=>{
     })
 
 })
+routerUsers.post("/checkPassword",(req,res,next)=>{
 
+    let password = req.body.password
+    let cipher = crypto.createCipher(algorithm, keyEncrypt);
+    let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
+    
+    mysqlConnection.query("SELECT * FROM user where id='"+req.infoInToken.userId+"' and password='"+passwordEncript+"'", (err, rows) => {
+        if (err){
+            res.send({error: err});
+            return;
+        }
+        if(rows.length>=1 ){
+            res.send({ message:"right"})
+        }else{
+            res.send({ error:"Error" })
+        }
+    }
+    )
+})
 
 module.exports=routerUsers

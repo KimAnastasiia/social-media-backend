@@ -66,6 +66,23 @@ routerUsers.put("/",(req,res,next)=>{
     })
 
 })
+routerUsers.put("/password",(req,res,next)=>{
+  
+    let password = req.body.password
+    let cipher = crypto.createCipher(algorithm, keyEncrypt);
+    let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
+    mysqlConnection.query("UPDATE user SET password='"+passwordEncript+"' where id= "+req.infoInToken.userId, (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            res.send({message:"done"});
+            console.log(rows);
+        }
+
+    })
+})
 routerUsers.post("/checkPassword",(req,res,next)=>{
 
     let password = req.body.password

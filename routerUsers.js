@@ -25,7 +25,6 @@ routerUsers.get("/",(req,res,next)=>{
 })
 
 routerUsers.put("/",(req,res,next)=>{
-    let img = req.files.myImage
     let name = req.body.name
     let surname = req.body.surname
     let phoneNumber = req.body.phoneNumber
@@ -38,33 +37,36 @@ routerUsers.put("/",(req,res,next)=>{
         if (err){
             res.send({error:err});
             return 
-        } else {
-            if (img != null) {
-                img.mv('public/images/' + req.infoInToken.userId.toString()+'.png', 
-                    function(err) {
-                        if (err) {
-                            res.send("Error in upload picture");
-                        } else{
-                            sharp('public/images/' + req.infoInToken.userId.toString()  +'.png')
-                            .resize(309,309)
-                            .toFile('public/images/' + req.infoInToken.userId.toString() +'avatar.png', (errMini, infoMini) => {
-                                if (errMini) {
-                                    console.error(errMini);
-                                    res.send("Error in resize picture");
-                                } else {
-                                    res.send({message:"done"});
-                                }
-                            })
-                           
-                        }
-                    }
-                )
-            }
-            console.log(rows);
+        } else {                
+            res.send({message:"done"});
         }
 
     })
 
+})
+routerUsers.put("/photo",(req,res,next)=>{
+    let img = req.files.myImage
+    if (img != null) {
+        img.mv('public/images/' + req.infoInToken.userId.toString()+'1.png', 
+            function(err) {
+                if (err) {
+                    res.send("Error in upload picture");
+                } else{
+                    sharp('public/images/' + req.infoInToken.userId.toString()  +'1.png')
+                    .resize(309,309)
+                    .toFile('public/images/' + req.infoInToken.userId.toString() +'avatar.png', (errMini, infoMini) => {
+                        if (errMini) {
+                            console.error(errMini);
+                            res.send("Error in resize picture");
+                        } else {
+                            res.send({message:"done"});
+                        }
+                    })
+                    
+                }
+            }
+        )
+    }
 })
 routerUsers.put("/password",(req,res,next)=>{
   

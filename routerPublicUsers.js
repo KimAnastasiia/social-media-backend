@@ -146,7 +146,7 @@ routerPublicUsers.post("/",(req,res,next)=>{
                     });
                     return 
                 }else{
-                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"'  ) ", (errPost , rowsPost) => {
+                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email, uniqueName ) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"','"+uniqueName+"') ", (errPost , rowsPost) => {
 
                             if (errPost){
                                 res.send({error: errPost});
@@ -176,9 +176,9 @@ routerPublicUsers.post("/",(req,res,next)=>{
                                     {
                                         messege:"user",
                                         apiKey: apiKey,
-                                        name:rows[0].name,
+                                        name: rows[0].name,
                                         userId: rows[0].id,
-                                        uniqueName:  rows[0].uniqueName,
+                                        uniqueName:  rows[0].uniqueName
                                     })
                                     return 
                                 }

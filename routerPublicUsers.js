@@ -42,6 +42,30 @@ routerPublicUsers.get("/",(req,res,next)=>{
     })
  
 })
+routerPublicUsers.get("/uniqueName",(req,res,next)=>{
+
+    let uniqueName = req.query.uniqueName
+
+    mysqlConnection.query("SELECT uniqueName from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } 
+        if(rows.length>0){
+            res.send({
+                messege:"uniqueName already in use",
+                errorUniqueName: "error in unique name"
+            });
+            return 
+        }else {
+            console.log(rows);
+            res.send(rows)
+        }
+
+        res.send(rows)
+    })
+})
 
 routerPublicUsers.get("/:uniqueName",(req,res,next)=>{
 

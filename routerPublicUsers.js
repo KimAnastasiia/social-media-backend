@@ -116,64 +116,80 @@ routerPublicUsers.post("/",(req,res,next)=>{
     let name =  req.body.name
     let phoneNumber =  req.body.phoneNumber
     let surname =  req.body.surname
+    let uniqueName =  req.body.uniqueName
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
 
 
-    mysqlConnection.query("SELECT email FROM user where email ='"+email+"' ", (errUsedEmail, rowsUsedEmail) => {
+    mysqlConnection.query("SELECT email FROM user where email ='"+email+"' ", (errUserEmail, rowsUserEmail) => {
 
-        if (errUsedEmail){
-            res.send({error:errUsedEmail});
+        if (errUserEmail){
+            res.send({error:errUserEmail});
             return 
         }
-        if(rowsUsedEmail.length>0){
+        if(rowsUserEmail.length>0){
             res.send({
                 messege:"email already in use",
-                error: "error"
+                error: "error in email"
             });
             return 
         }else{
-            mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"'  ) ", (errPost , rowsPost) => {
-
-                if (errPost){
-                    res.send({error: errPost});
-                    return ;
+            mysqlConnection.query("SELECT uniqueName FROM user where uniqueName ='"+uniqueName+"' ", (errUniqueName, rowsUniqueName) => {
+                if (errUniqueName){
+                    res.send({error:errUniqueName});
+                    return 
                 }
-                mysqlConnection.query("SELECT * FROM user where email='"+email+"' and password='"+passwordEncript+"'", (err, rows) => {
+                if(rowsUniqueName.length>0){
+                    res.send({
+                        messege:"uniqueName already in use",
+                        error: "error in unique name"
+                    });
+                    return 
+                }else{
+                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"'  ) ", (errPost , rowsPost) => {
+
+                            if (errPost){
+                                res.send({error: errPost});
+                                return ;
+                            }
+                            mysqlConnection.query("SELECT * FROM user where email='"+email+"' and password='"+passwordEncript+"'", (err, rows) => {
+                                
+                                if (err){
+                                    res.send({error: err});
+                                    return ;
+                                }
+                            
+                                
+                                if(rows.length>=1){
+                        
+                                    let apiKey = jwt.sign(
+                                        { 
+                                            email: email,
+                                            userId: rows[0].id
+                        
+                                        },
+                                        "secret");
+                        
+                                    objectOfApiKey.push(apiKey)
+                        
+                                    res.send(
+                                    {
+                                        messege:"user",
+                                        apiKey: apiKey,
+                                        name:rows[0].name,
+                                        userId: rows[0].id,
+                                        uniqueName:  rows[0].uniqueName,
+                                    })
+                                    return 
+                                }
                     
-                    if (err){
-                        res.send({error: err});
-                        return ;
-                    }
-                   
+                        
+                            })
                     
-                    if(rows.length>=1){
-            
-                        let apiKey = jwt.sign(
-                            { 
-                                email: email,
-                                userId: rows[0].id
-            
-                            },
-                            "secret");
-            
-                        objectOfApiKey.push(apiKey)
-            
-                        res.send(
-                        {
-                            messege:"user",
-                            apiKey: apiKey,
-                            name:rows[0].name,
-                            userId: rows[0].id,
-                            uniqueName:  rows[0].uniqueName,
                         })
-                        return 
                     }
-        
-            
-                })
-        
             })
+    
         }
     })
  

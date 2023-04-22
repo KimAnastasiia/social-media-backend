@@ -60,7 +60,31 @@ routerPublicUsers.get("/uniqueName",(req,res,next)=>{
             return 
         }else {
             console.log(rows);
-            res.send(rows)
+        
+        }
+
+        res.send(rows)
+    })
+})
+routerPublicUsers.get("/email",(req,res,next)=>{
+
+    let email = req.query.email
+
+    mysqlConnection.query("SELECT email from user WHERE email='"+email+"'", (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return 
+        } 
+        if(rows.length>0){
+            res.send({
+                messege:"email already in use",
+                errorEmail: "error in email name"
+            });
+            return 
+        }else {
+            console.log(rows);
+        
         }
 
         res.send(rows)

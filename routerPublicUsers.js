@@ -6,7 +6,7 @@ let keyEncrypt = 'password';
 let algorithm = 'aes256'
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
-
+let fs=require("fs")
 
 
 routerPublicUsers.get("/",(req,res,next)=>{
@@ -89,6 +89,19 @@ routerPublicUsers.get("/email",(req,res,next)=>{
 
         res.send(rows)
     })
+})
+routerPublicUsers.get("/avatar",(req,res,next)=>{
+
+    let id = req.query.id
+    let nameOfImg=id+"avatar.png"
+    if (fs.existsSync("./public/images/"+nameOfImg)) {
+        res.send({message:true});
+        return 
+    }else{
+        res.send({message:false});
+        return 
+    }
+
 })
 
 routerPublicUsers.get("/:uniqueName",(req,res,next)=>{

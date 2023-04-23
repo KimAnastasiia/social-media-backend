@@ -25,5 +25,35 @@ routerFriends.get("/",(req,res,next)=>{
         }
     })
 })
+routerFriends.post("/",(req,res,next)=>{
+
+    let friendId = req.body.friendId
+  
+    mysqlConnection.query("SELECT * from friends WHERE friendId="+friendId+" and userId="+req.infoInToken.userId, (errUserFriend, rowsUserFriend) => {
+
+        if (errUserFriend){
+            res.send({error:errUserFriend});
+            return 
+        } else if(rowsUserFriend.length>0){
+            res.send({message:"You are already following this user"});
+            return 
+        }else{
+            mysqlConnection.query("INSERT INTO friends ( userId, friendId, subscription ) VALUES ("+req.infoInToken.userId+","+friendId+", false) ", (err, rows) => {
+
+                if (err){
+                    res.send({error: err});
+                    return ;
+                }
+                else{
+                res.send(
+                    {
+                        message:"done",
+                        rows: rows
+                    })
+                }
+            })
+        }
+    })
+})
 module.exports=routerFriends
  

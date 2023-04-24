@@ -25,6 +25,7 @@ const routerPostLike = require('./routerPostLike');
 const routerPublicPostLike = require('./routerPublicPostLike');
 const routerPublicUsers = require('./routerPublicUsers');
 const routerFriends = require('./routerFriends');
+const routerPublicFriends = require('./routerPublicFriends');
 
 app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
@@ -53,6 +54,7 @@ app.use("/postLikes", routerPostLike)
 app.use("/public/postLikes", routerPublicPostLike)
 app.use("/users", routerUsers)
 app.use("/friends", routerFriends)
+app.use("/public/friends", routerPublicFriends)
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

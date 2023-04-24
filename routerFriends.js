@@ -55,5 +55,20 @@ routerFriends.post("/",(req,res,next)=>{
         }
     })
 })
+routerFriends.delete("/:friendId",(req,res,next)=>{
+
+    let friendId = req.params.friendId
+    mysqlConnection.query("DELETE FROM friends WHERE userId="+req.infoInToken.userId+" and friendId="+friendId+"",(err,rows)=>{
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+            console.log(rows)
+        }
+        res.send({messege:"done"})
+    })
+})
+
 module.exports=routerFriends
  

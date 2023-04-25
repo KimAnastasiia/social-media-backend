@@ -8,7 +8,7 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
 
-routerPublicFriends.get("/",(req,res,next)=>{
+routerPublicFriends.get("/",(req,res)=>{
 
     let id = req.query.id
 
@@ -37,6 +37,23 @@ routerPublicFriends.get("/",(req,res,next)=>{
 
 })
 
+routerPublicFriends.get("/followers",(req,res)=>{
+
+    let id = req.query.id
+
+    mysqlConnection.query("SELECT * FROM friends JOIN user ON user.id=friends.userId WHERE friendId="+id, (errFollowers, rowsFollowers) => {
+
+        if (errFollowers){
+            res.send({error:errFollowers});
+            return 
+        } else {
+            res.send({
+                followers:rowsFollowers
+            });
+            return 
+        }
+    })
+})
 
 
 module.exports=routerPublicFriends

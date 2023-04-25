@@ -7,7 +7,7 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
 
-routerPublicMediaPost.get("/",(req,res,next)=>{
+routerPublicMediaPost.get("/",(req,res)=>{
     
     let sqlQuery="SELECT * FROM post"
 
@@ -30,7 +30,7 @@ routerPublicMediaPost.get("/",(req,res,next)=>{
 })
 
 
-routerPublicMediaPost.get("/:id",(req,res,next)=>{
+routerPublicMediaPost.get("/:id",(req,res)=>{
 
     let id = req.params.id
 

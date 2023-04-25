@@ -8,7 +8,7 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
 
-routerUsers.get("/",(req,res,next)=>{
+routerUsers.get("/",(req,res)=>{
 
 
     mysqlConnection.query("SELECT name, surname, phoneNumber, id, email, uniqueName, presentation from user WHERE id="+req.infoInToken.userId+"", (err, rows) => {
@@ -24,7 +24,7 @@ routerUsers.get("/",(req,res,next)=>{
     })
 })
 
-routerUsers.put("/",(req,res,next)=>{
+routerUsers.put("/",(req,res)=>{
     let name = req.body.name
     let surname = req.body.surname
     let phoneNumber = req.body.phoneNumber
@@ -44,7 +44,7 @@ routerUsers.put("/",(req,res,next)=>{
     })
 
 })
-routerUsers.put("/photo",(req,res,next)=>{
+routerUsers.put("/photo",(req,res)=>{
     let img = req.files.myImage
     if (img != null) {
         img.mv('public/images/' + req.infoInToken.userId.toString()+'1.png', 
@@ -68,7 +68,7 @@ routerUsers.put("/photo",(req,res,next)=>{
         )
     }
 })
-routerUsers.put("/password",(req,res,next)=>{
+routerUsers.put("/password",(req,res)=>{
   
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
@@ -85,7 +85,7 @@ routerUsers.put("/password",(req,res,next)=>{
 
     })
 })
-routerUsers.post("/checkPassword",(req,res,next)=>{
+routerUsers.post("/checkPassword",(req,res)=>{
 
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);

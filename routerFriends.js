@@ -8,7 +8,7 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
 
-routerFriends.get("/",(req,res,next)=>{
+routerFriends.get("/",(req,res)=>{
 
     let friendId = req.query.friendId
     mysqlConnection.query("SELECT * from friends WHERE userId="+req.infoInToken.userId+" and friendId="+friendId, (err, rows) => {
@@ -25,7 +25,7 @@ routerFriends.get("/",(req,res,next)=>{
         }
     })
 })
-routerFriends.post("/",(req,res,next)=>{
+routerFriends.post("/",(req,res)=>{
 
     let friendId = req.body.friendId
   
@@ -55,7 +55,7 @@ routerFriends.post("/",(req,res,next)=>{
         }
     })
 })
-routerFriends.delete("/:friendId",(req,res,next)=>{
+routerFriends.delete("/:friendId",(req,res)=>{
 
     let friendId = req.params.friendId
     mysqlConnection.query("DELETE FROM friends WHERE userId="+req.infoInToken.userId+" and friendId="+friendId+"",(err,rows)=>{

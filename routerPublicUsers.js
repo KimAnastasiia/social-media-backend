@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 let fs=require("fs")
 
 
-routerPublicUsers.get("/",(req,res,next)=>{
+routerPublicUsers.get("/",(req,res)=>{
 
     let emailUser = req.query.email
     let name = req.query.name
@@ -42,7 +42,7 @@ routerPublicUsers.get("/",(req,res,next)=>{
     })
  
 })
-routerPublicUsers.get("/uniqueName",(req,res,next)=>{
+routerPublicUsers.get("/uniqueName",(req,res)=>{
 
     let uniqueName = req.query.uniqueName
 
@@ -66,7 +66,7 @@ routerPublicUsers.get("/uniqueName",(req,res,next)=>{
         res.send(rows)
     })
 })
-routerPublicUsers.get("/email",(req,res,next)=>{
+routerPublicUsers.get("/email",(req,res)=>{
 
     let email = req.query.email
 
@@ -90,7 +90,7 @@ routerPublicUsers.get("/email",(req,res,next)=>{
         res.send(rows)
     })
 })
-routerPublicUsers.get("/avatar",(req,res,next)=>{
+routerPublicUsers.get("/avatar",(req,res)=>{
 
     let id = req.query.id
     let nameOfImg=id+"avatar.png"
@@ -104,7 +104,7 @@ routerPublicUsers.get("/avatar",(req,res,next)=>{
 
 })
 
-routerPublicUsers.get("/:uniqueName",(req,res,next)=>{
+routerPublicUsers.get("/:uniqueName",(req,res)=>{
 
     let uniqueName = req.params.uniqueName
 
@@ -121,7 +121,7 @@ routerPublicUsers.get("/:uniqueName",(req,res,next)=>{
     })
 })
 
-routerPublicUsers.post("/verification",(req,res,next)=>{
+routerPublicUsers.post("/verification",(req,res)=>{
     let emailUser = req.body.email  
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
@@ -170,7 +170,7 @@ routerPublicUsers.post("/verification",(req,res,next)=>{
     )
 })
 
-routerPublicUsers.post("/",(req,res,next)=>{
+routerPublicUsers.post("/",(req,res)=>{
 
     let email = req.body.email
     let password = req.body.password

@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
-routerPublicComments.get("/",(req,res,next)=>{
+routerPublicComments.get("/",(req,res)=>{
  
 
     mysqlConnection.query(`SELECT comment.*, COUNT(likesforcomments.id) as totalLikes FROM comment 
@@ -23,7 +23,7 @@ routerPublicComments.get("/",(req,res,next)=>{
     })
   
 })
-routerPublicComments.get("/:postId",(req,res,next)=>{
+routerPublicComments.get("/:postId",(req,res)=>{
  
     let postId=req.params.postId
 

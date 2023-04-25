@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 
-routerPublicPostLike.get("/:postId",(req,res,next)=>{
+routerPublicPostLike.get("/:postId",(req,res)=>{
 
     let postId = req.params.postId
 

@@ -55,5 +55,23 @@ routerPublicFriends.get("/followers",(req,res)=>{
     })
 })
 
+routerPublicFriends.get("/following",(req,res)=>{
 
+    let id = req.query.id
+
+    mysqlConnection.query("SELECT * FROM friends JOIN user ON user.id=friends.friendId WHERE userId="+id, (errFollowing, rowsFollowing) => {
+
+        if (errFollowing){
+            res.send({error:errFollowing});
+            return 
+        } else {
+            res.send({
+                following:rowsFollowing
+            });
+            return     
+        }
+ 
+    })
+
+})
 module.exports=routerPublicFriends

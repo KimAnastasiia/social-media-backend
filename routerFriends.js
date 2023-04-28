@@ -69,6 +69,20 @@ routerFriends.delete("/followers",(req,res)=>{
         res.send({messege:"done"})
     })
 })
+routerFriends.delete("/following",(req,res)=>{
+
+    let followingId = req.query.followingId
+    mysqlConnection.query("DELETE FROM friends WHERE following="+followingId+" and followers="+req.infoInToken.userId+"",(err,rows)=>{
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+            console.log(rows)
+        }
+        res.send({messege:"done"})
+    })
+})
 routerFriends.delete("/",(req,res)=>{
 
     let followingId = req.query.followingId

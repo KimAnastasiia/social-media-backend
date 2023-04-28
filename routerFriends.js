@@ -10,8 +10,8 @@ const sharp = require('sharp');
 
 routerFriends.get("/",(req,res)=>{
 
-    let friendId = req.query.friendId
-    mysqlConnection.query("SELECT * from friends WHERE userId="+req.infoInToken.userId+" and friendId="+friendId, (err, rows) => {
+    let followingId = req.query.followingId
+    mysqlConnection.query("SELECT * from friends WHERE followers="+req.infoInToken.userId+" and following="+followingId, (err, rows) => {
 
         if (err){
             res.send({error:err});
@@ -27,9 +27,9 @@ routerFriends.get("/",(req,res)=>{
 })
 routerFriends.post("/",(req,res)=>{
 
-    let friendId = req.body.friendId
+    let followingId = req.body.followingId
   
-    mysqlConnection.query("SELECT * from friends WHERE friendId="+friendId+" and userId="+req.infoInToken.userId, (errUserFriend, rowsUserFriend) => {
+    mysqlConnection.query("SELECT * from friends WHERE following="+followingId+" and followers="+req.infoInToken.userId, (errUserFriend, rowsUserFriend) => {
 
         if (errUserFriend){
             res.send({error:errUserFriend});
@@ -38,7 +38,7 @@ routerFriends.post("/",(req,res)=>{
             res.send({message:"You are already following this user"});
             return 
         }else{
-            mysqlConnection.query("INSERT INTO friends ( userId, friendId, subscription ) VALUES ("+req.infoInToken.userId+","+friendId+", false) ", (err, rows) => {
+            mysqlConnection.query("INSERT INTO friends ( followers, following, subscription ) VALUES ("+req.infoInToken.userId+","+followingId+", false) ", (err, rows) => {
 
                 if (err){
                     res.send({error: err});
@@ -55,10 +55,25 @@ routerFriends.post("/",(req,res)=>{
         }
     })
 })
-routerFriends.delete("/:friendId",(req,res)=>{
+routerFriends.delete("/followers",(req,res)=>{
 
-    let friendId = req.params.friendId
-    mysqlConnection.query("DELETE FROM friends WHERE userId="+req.infoInToken.userId+" and friendId="+friendId+"",(err,rows)=>{
+    let followersId = req.query.followersId
+    mysqlConnection.query("DELETE FROM friends WHERE followers="+followersId+" and following="+req.infoInToken.userId+"",(err,rows)=>{
+        if (err){
+            res.send({error: err});
+            return ;
+        }
+        else{
+            console.log(rows)
+        }
+        res.send({messege:"done"})
+    })
+})
+routerFriends.delete("/",(req,res)=>{
+
+    let followingId = req.query.followingId
+
+    mysqlConnection.query("DELETE FROM friends WHERE followers="+req.infoInToken.userId+" and following="+followingId+"",(err,rows)=>{
         if (err){
             res.send({error: err});
             return ;

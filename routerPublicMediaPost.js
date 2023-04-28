@@ -32,12 +32,12 @@ routerPublicMediaPost.get("/",(req,res)=>{
 
 routerPublicMediaPost.get("/postes",(req,res)=>{
     let p = req.query.p 
-    p=(p-1)*4
+    p=(p-1)*6
     let userId = req.query.userId
 
     if (userId!=undefined){
 
-        sqlQuery= "SELECT * FROM post where userId="+userId+ " LIMIT 4 OFFSET "+p
+        sqlQuery= "SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p
 
     }
 

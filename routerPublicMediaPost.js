@@ -26,9 +26,46 @@ routerPublicMediaPost.get("/",(req,res)=>{
         }
         res.send(rows)
     })
-  
 })
 
+
+
+routerPublicMediaPost.get("/postes",(req,res)=>{
+    let p = req.query.p 
+    p=(p-1)*4
+    let userId = req.query.userId
+
+    if (userId!=undefined){
+
+        sqlQuery= "SELECT * FROM post where userId="+userId+ " LIMIT 4 OFFSET "+p
+
+    }
+
+    mysqlConnection.query(sqlQuery, (err, rows) => {
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            console.log(rows);
+        }
+        res.send(rows)
+    })
+  
+})
+routerPublicMediaPost.get("/count",(req,res)=>{
+
+    let id = req.query.id
+    mysqlConnection.query('SELECT COUNT(*) AS number FROM post WHERE userId=' +id, (err, rows) => {
+
+        if (err){
+            res.send({error:err});
+            return
+        }
+        else{
+            res.send(rows)
+        }
+    })
+})
 
 routerPublicMediaPost.get("/:id",(req,res)=>{
 

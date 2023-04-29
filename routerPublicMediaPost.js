@@ -5,6 +5,7 @@ const routerPublicMediaPost = express.Router();
 const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
+const database= require("./database")
 
 routerPublicMediaPost.get("/",(req,res)=>{
     
@@ -34,28 +35,15 @@ routerPublicMediaPost.get("/postes",async(req,res)=>{
     p=(p-1)*6
     let userId = req.query.userId
 
-    mysqlConnection.query("SELECT * FROM user where id="+userId, (err, rows) => {
-        if (err){
-            res.send({error:err});
-            return 
-        } 
-        if(rows[0].close==1){
-            res.send({close:true});
-            return 
-        }
-        else {
-            mysqlConnection.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p, (errPost, rowsPost) => {
-                if (errPost){
-                    res.send({error:errPost});
-                    return 
-                } else {
-                    res.send(rowsPost)
-                }
-               
-            })
-        }
-       
-    })
+    database.connect();
+    const users = await database.query("SELECT * FROM user where id="+userId)
+    if(users[0].close==1){
+        res.send({close:true});
+        return 
+    }
+    const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+    database.disConnect();
+    res.send(posts)
   
 })
 routerPublicMediaPost.get("/count",(req,res)=>{

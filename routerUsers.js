@@ -104,5 +104,19 @@ routerUsers.post("/checkPassword",(req,res)=>{
     }
     )
 })
+routerUsers.put("/private",(req,res)=>{
+  
+    let private = req.body.private
+    mysqlConnection.query("UPDATE user SET close="+private+" where id= "+req.infoInToken.userId, (err, rows) => {
 
+        if (err){
+            res.send({error:err});
+            return 
+        } else {
+            res.send({message:"done"});
+            console.log(rows);
+        }
+
+    })
+})
 module.exports=routerUsers

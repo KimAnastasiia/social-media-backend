@@ -46,7 +46,7 @@ routerPublicUsers.get("/uniqueName",(req,res)=>{
 
     let uniqueName = req.query.uniqueName
 
-    mysqlConnection.query("SELECT uniqueName from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
+    mysqlConnection.query("SELECT uniqueName, name from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
 
         if (err){
             res.send({error:err});
@@ -108,7 +108,7 @@ routerPublicUsers.get("/:uniqueName",(req,res)=>{
 
     let uniqueName = req.params.uniqueName
 
-    mysqlConnection.query("SELECT name, id, email, uniqueName from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
+    mysqlConnection.query("SELECT name, id, email, uniqueName, close from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
 
         if (err){
             res.send({error:err});
@@ -207,7 +207,7 @@ routerPublicUsers.post("/",(req,res)=>{
                     });
                     return 
                 }else{
-                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email, uniqueName ) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"','"+uniqueName+"') ", (errPost , rowsPost) => {
+                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email, uniqueName, close ) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"','"+uniqueName+"', false) ", (errPost , rowsPost) => {
 
                             if (errPost){
                                 res.send({error: errPost});

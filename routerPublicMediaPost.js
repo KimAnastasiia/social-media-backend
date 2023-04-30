@@ -39,6 +39,7 @@ routerPublicMediaPost.get("/postes",async(req,res)=>{
     const users = await database.query("SELECT * FROM user where id="+userId)
     if(users[0].close==1){
         res.send({close:true});
+        database.disConnect();
         return 
     }
     const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)

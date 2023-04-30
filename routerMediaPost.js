@@ -5,7 +5,50 @@ const routerMediaPost = express.Router();
 const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
+const database= require("./database")
 
+routerMediaPost.get("/",async(req,res)=>{
+    let p = req.query.p 
+    p=(p-1)*6
+    let userId = req.query.userId
+
+    database.connect();
+
+    const users = await database.query("SELECT * FROM user where id="+userId)
+    if(users[0].close==1){
+
+       const friend=  await database.query("SELECT * FROM friends WHERE following ="+userId+" AND followers ="+ req.infoInToken.userId)
+       
+       if(friend.length>0){
+            const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+            database.disConnect();
+            res.send(posts)
+            return 
+       }else if(userId==req.infoInToken.userId){
+            const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+            database.disConnect();
+            res.send(posts)
+            return
+        }else{
+            res.send({message:"This is a privae account, subscribe to see publications"});
+            database.disConnect();
+            return 
+       }
+    }else if(userId==req.infoInToken.userId){
+        const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+        database.disConnect();
+        res.send(posts)
+        return 
+    }else{
+        const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+        database.disConnect();
+        res.send(posts)
+        return 
+    }
+
+   
+  
+})
 
 routerMediaPost.post('/', (req, res) => {
 

@@ -11,14 +11,22 @@ let database = {
     },
     mysqlConnection:null,
     query:null,
+    connected: false,
     connect() {
-        this.mysqlConnection = mysql.createConnection(this.configuration);
+        if ( this.connected == false){
+            this.mysqlConnection = mysql.createConnection(this.configuration);
 
-        this.mysqlConnection.connect();
-        this.query = util.promisify(this.mysqlConnection.query).bind(this.mysqlConnection);
+            this.mysqlConnection.connect();
+            this.connected = true;
+            this.query = util.promisify(this.mysqlConnection.query).bind(this.mysqlConnection);
+        }
+
     },
     disConnect() {
-        this.mysqlConnection.end();
+        if ( this.connected){
+            //this.mysqlConnection.end();
+            this.connected = false;
+        }
     }
 }
 

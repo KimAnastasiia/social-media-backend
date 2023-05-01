@@ -25,7 +25,7 @@ let database = {
     disConnect() {
         if ( this.connected){
             //this.mysqlConnection.end();
-            this.connected = false;
+            ///this.connected = false;
         }
     }
 }

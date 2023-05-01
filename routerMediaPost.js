@@ -7,6 +7,11 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const database= require("./database")
 
+const STATE_PRIVATE_ACCOUNT = 1
+const STATE_WAITING_FOR_RESPONSE = 2
+
+
+
 routerMediaPost.get("/",async(req,res)=>{
     let p = req.query.p 
     p=(p-1)*6
@@ -19,7 +24,7 @@ routerMediaPost.get("/",async(req,res)=>{
 
        const friend=  await database.query("SELECT * FROM friends WHERE following ="+userId+" AND followers ="+ req.infoInToken.userId)
        
-       if(friend.length>0){
+       if(friend.length>0 && friend[0].subscription == 1){
             const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
             database.disConnect();
             res.send(posts)
@@ -29,16 +34,22 @@ routerMediaPost.get("/",async(req,res)=>{
             database.disConnect();
             res.send(posts)
             return
-        }else{
-            res.send({message:"This is a privae account, subscribe to see publications"});
+        }else if(friend.length>0 && friend[0].subscription == 0){
+            res.send(
+                {
+                    message:"Wait for a response from the user",
+                    code:STATE_WAITING_FOR_RESPONSE
+                });
+            return 
+        }
+        else{
+            res.send({
+                message:"This is a private account, subscribe to see publications",
+                code:STATE_PRIVATE_ACCOUNT
+        });
             database.disConnect();
             return 
        }
-    }else if(userId==req.infoInToken.userId){
-        const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
-        database.disConnect();
-        res.send(posts)
-        return 
     }else{
         const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
         database.disConnect();

@@ -7,7 +7,7 @@ let algorithm = 'aes256'
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
-
+const database= require("./database")
 routerFriends.get("/",(req,res)=>{
 
     let followingId = req.query.followingId
@@ -24,6 +24,13 @@ routerFriends.get("/",(req,res)=>{
             return 
         }
     })
+})
+routerFriends.get("/subscriptionRequests",async(req,res)=>{
+    database.connect();
+    const subscriptionRequests = await database.query("SELECT * FROM friends JOIN user ON friends.followers=user.id where following="+req.infoInToken.userId+" and subscription = 0")
+    database.disConnect();
+    res.send(subscriptionRequests)
+    return 
 })
 routerFriends.post("/",(req,res)=>{
 

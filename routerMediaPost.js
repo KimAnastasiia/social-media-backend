@@ -14,9 +14,21 @@ const STATE_WAITING_FOR_RESPONSE = 2
 
 routerMediaPost.get("/",async(req,res)=>{
     let p = req.query.p 
-    p=(p-1)*6
     let userId = req.query.userId
+    let errorMessages=[]
 
+    if(p== undefined ){
+        errorMessages.push("paragraph undefined")
+    }
+    if(userId == undefined ){
+        errorMessages.push("userId undefined")
+    }
+    if(errorMessages.length>0){
+        res.send({error:errorMessages})
+        return 
+    }
+    
+    p=(p-1)*6
     database.connect();
 
     const users = await database.query("SELECT * FROM user where id="+userId)

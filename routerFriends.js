@@ -35,7 +35,7 @@ routerFriends.get("/subscriptionRequests",async(req,res)=>{
 routerFriends.post("/",(req,res)=>{
 
     let followingId = req.body.followingId
-  
+    const d = Date.now();
     mysqlConnection.query("SELECT * from friends WHERE following="+followingId+" and followers="+req.infoInToken.userId, (errUserFriend, rowsUserFriend) => {
 
         if (errUserFriend){
@@ -45,7 +45,7 @@ routerFriends.post("/",(req,res)=>{
             res.send({message:"You are already following this user"});
             return 
         }else{
-            mysqlConnection.query("INSERT INTO friends ( followers, following, subscription ) VALUES ("+req.infoInToken.userId+","+followingId+", false) ", (err, rows) => {
+            mysqlConnection.query("INSERT INTO friends ( followers, following, subscription, date ) VALUES ("+req.infoInToken.userId+","+followingId+", false,"+d+" ) ", (err, rows) => {
 
                 if (err){
                     res.send({error: err});

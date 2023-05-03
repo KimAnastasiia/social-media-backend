@@ -7,52 +7,28 @@ let algorithm = 'aes256'
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
+const database= require("./database")
 
-routerPublicFriends.get("/",(req,res)=>{
-
-    let id = req.query.id
-
-    mysqlConnection.query("SELECT COUNT(following) AS following FROM friends WHERE followers="+id, (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            mysqlConnection.query("SELECT COUNT(following) AS followers FROM friends WHERE following="+id, (errFollowers, rowsFollowers) => {
-
-                if (errFollowers){
-                    res.send({error:errFollowers});
-                    return 
-                } else {
-                    res.send({
-                        following:rows,
-                        followers:rowsFollowers
-                    });
-                    return 
-                }
-            })
-        }
-    })
-
-
-})
-
-routerPublicFriends.get("/followers",(req,res)=>{
+routerPublicFriends.get("/followers",async(req,res)=>{
 
     let id = req.query.id
-
-    mysqlConnection.query("SELECT * FROM friends JOIN user ON user.id=friends.followers WHERE following="+id, (errFollowers, rowsFollowers) => {
-
-        if (errFollowers){
-            res.send({error:errFollowers});
-            return 
-        } else {
-            res.send({
-                followers:rowsFollowers
-            });
-            return 
-        }
-    })
+    database.connect();
+    const user = await database.query("SELECT * FROM user WHERE id="+id)
+    if(user[0].close == 1){
+        const followersClose = await database.query("SELECT * FROM friends JOIN user ON user.id=friends.followers WHERE following="+id+" and subscription=1")
+        database.disConnect();
+        res.send({
+            followers:followersClose
+        });
+        return 
+    }else{
+        const followersOpen = await database.query("SELECT * FROM friends JOIN user ON user.id=friends.followers WHERE following="+id)
+        database.disConnect();
+        res.send({
+            followers:followersOpen
+        });
+        return 
+    }
 })
 
 routerPublicFriends.get("/following",(req,res)=>{

@@ -62,6 +62,19 @@ routerFriends.post("/",(req,res)=>{
         }
     })
 })
+routerFriends.put('/', async(req, res) => {
+    let followerId=req.body.followerId
+    database.connect();
+    try{
+        const row = await database.query("UPDATE friends SET subscription=1 where following="+req.infoInToken.userId+" and followers= "+followerId)
+        database.disConnect();
+        res.send({message:"done"})
+        return 
+    } catch (error){
+        console.log("Error")
+        res.send({message:"error while accepting friend request"})
+    }
+})
 routerFriends.delete("/followers",(req,res)=>{
 
     let followersId = req.query.followersId

@@ -31,23 +31,26 @@ routerPublicFriends.get("/followers",async(req,res)=>{
     }
 })
 
-routerPublicFriends.get("/following",(req,res)=>{
+routerPublicFriends.get("/following",async(req,res)=>{
 
     let id = req.query.id
-
-    mysqlConnection.query("SELECT * FROM friends JOIN user ON user.id=friends.following WHERE followers="+id, (errFollowing, rowsFollowing) => {
-
-        if (errFollowing){
-            res.send({error:errFollowing});
-            return 
-        } else {
-            res.send({
-                following:rowsFollowing
-            });
-            return     
-        }
- 
-    })
+    database.connect();
+    const user = await database.query("SELECT * FROM user WHERE id="+id)
+    if(user[0].close == 1){
+        const followingClose = await database.query("SELECT * FROM friends JOIN user ON user.id=friends.following WHERE followers="+id+" and subscription=1")
+        database.disConnect();
+        res.send({
+            following:followingClose
+        });
+        return 
+    }else{
+        const followingOpen = await database.query("SELECT * FROM friends JOIN user ON user.id=friends.following WHERE followers="+id)
+        database.disConnect();
+        res.send({
+            following:followingOpen
+        });
+        return 
+    }
 
 })
 module.exports=routerPublicFriends

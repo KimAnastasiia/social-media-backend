@@ -26,8 +26,9 @@ const routerPublicPostLike = require('./routerPublicPostLike');
 const routerPublicUsers = require('./routerPublicUsers');
 const routerFriends = require('./routerFriends');
 const routerPublicFriends = require('./routerPublicFriends');
+const routerMessages = require('./routerMessages');
 
-app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends"] ,(req,res,next)=>{
+app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends","/messages"] ,(req,res,next)=>{
     let apiKey = req.query.apiKey
   
     let obj = objectOfApiKey.find((obj)=>
@@ -55,6 +56,7 @@ app.use("/public/postLikes", routerPublicPostLike)
 app.use("/users", routerUsers)
 app.use("/friends", routerFriends)
 app.use("/public/friends", routerPublicFriends)
+app.use("/messages", routerMessages)
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

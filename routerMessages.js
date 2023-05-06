@@ -8,6 +8,23 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const database= require("./database")
 
+routerMessages.get("/dialogues",async(req,res)=>{
+    database.connect();
+    try{
+        const dialogues = await database.query(
+        `SELECT messages.*, sender.uniqueName AS sender_uniqueName, receiver.uniqueName AS receiver_uniqueName
+        FROM messages
+        JOIN user sender ON sender.id = messages.idSender
+        JOIN user receiver ON receiver.id = messages.idReceiver 
+        Where idSender=`+ req.infoInToken.userId +" or idReceiver=" + req.infoInToken.userId+` GROUP BY LEAST(idSender, idReceiver), GREATEST(idSender, idReceiver);`)
+        database.disConnect();
+        res.send(dialogues)
+        return 
+    }catch (error){
+        res.send({message:"error while fetching dialogues"})
+    }
+})
+
 routerMessages.post("/",async(req,res)=>{
 
     let idReceiver = req.body.idReceiver

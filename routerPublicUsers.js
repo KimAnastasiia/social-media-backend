@@ -129,7 +129,7 @@ routerPublicUsers.post("/verification",(req,res)=>{
     
     
 
-    mysqlConnection.query("SELECT * FROM user where email='"+emailUser+"' and password='"+passwordEncript+"'", (err, rows) => {
+    mysqlConnection.query("SELECT * FROM user where email= ? and password= ?", [emailUser,passwordEncript] , (err, rows) => {
         if (err){
             res.send({error: err});
             return ;

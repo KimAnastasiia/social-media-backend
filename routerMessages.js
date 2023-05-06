@@ -25,6 +25,22 @@ routerMessages.get("/dialogues",async(req,res)=>{
     }
 })
 
+routerMessages.get("/:idReceiver",async(req,res)=>{
+    let idReceiver= req.params.idReceiver
+    database.connect();
+    try{
+        const chat = await database.query(`SELECT  messages.date, messages.message, user.id AS userId, user.uniqueName, messages.id AS messageId
+        FROM messages 
+        JOIN user 
+        ON user.id=messages.idSender 
+        where (idSender=`+ req.infoInToken.userId+" and idReceiver="+idReceiver+ ") or (idReceiver="+ req.infoInToken.userId+" and idSender="+idReceiver+")")
+        database.disConnect();
+        res.send(chat)
+        return 
+    }catch (error){
+        res.send({message:"error while fetching messages"})
+    }
+})
 routerMessages.post("/",async(req,res)=>{
 
     let idReceiver = req.body.idReceiver

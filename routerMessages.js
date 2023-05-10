@@ -58,6 +58,18 @@ routerMessages.post("/",async(req,res)=>{
         res.send({message:"error sending message"})
     }
 })
-
+routerMessages.delete('/',async (req, res) =>{
+    let companionId = req.query.companionId
+    database.connect();
+    try{
+        const deleteDialogue = await database.query("DELETE FROM messages WHERE idSender="+req.infoInToken.userId+ " and idReceiver="+companionId+ " or idReceiver="+req.infoInToken.userId+" and idSender="+companionId)
+        database.disConnect();
+        res.send({message:"done"})
+        return 
+    } catch (error){
+        console.log("Error")
+        res.send({message:"error delete dialogue"})
+    }
+})
 
 module.exports=routerMessages

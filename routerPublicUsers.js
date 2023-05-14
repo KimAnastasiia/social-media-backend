@@ -108,7 +108,7 @@ routerPublicUsers.get("/:uniqueName",(req,res)=>{
 
     let uniqueName = req.params.uniqueName
 
-    mysqlConnection.query("SELECT name, id, email, uniqueName, close from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
+    mysqlConnection.query("SELECT name, id, email, uniqueName, close, lastTimeConnected from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
 
         if (err){
             res.send({error:err});

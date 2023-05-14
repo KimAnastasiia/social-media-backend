@@ -5,7 +5,7 @@ app.use(express.static('public'));
 app.use(express.json())
 var cors = require('cors')
 app.use(cors())
-
+const database= require("./database")
 
 const objectOfApiKey = require("./objectApiKey")
 const routerUsers =  require("./routerUsers")
@@ -28,9 +28,9 @@ const routerFriends = require('./routerFriends');
 const routerPublicFriends = require('./routerPublicFriends');
 const routerMessages = require('./routerMessages');
 
-app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends","/messages"] ,(req,res,next)=>{
+app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends","/messages"] ,async(req,res,next)=>{
     let apiKey = req.query.apiKey
-  
+
     let obj = objectOfApiKey.find((obj)=>
       obj===apiKey
     )
@@ -38,9 +38,14 @@ app.use(["/comments", "/likes", "/mediaPost", "/postLikes", "/users", "/friends"
         res.send({error:"error"})
         return
     }
-    
+
     let infoInToken = jwt.verify(apiKey, "secret");
     req.infoInToken = infoInToken;
+    
+    const d = Date.now();
+    database.connect();
+    const lastTime=await database.query("UPDATE user SET lastTimeConnected=? where id=?",[d, req.infoInToken.userId])
+    database.disConnect()
 
     next()
 })

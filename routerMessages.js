@@ -26,6 +26,12 @@ routerMessages.get("/dialogues",async(req,res)=>{
 })
 
 routerMessages.get("/:idReceiver",async(req,res)=>{
+
+    let time = req.query.time
+    if(time==undefined){
+        time=0
+    }
+
     let idReceiver= req.params.idReceiver
     database.connect();
     try{
@@ -33,7 +39,8 @@ routerMessages.get("/:idReceiver",async(req,res)=>{
         FROM messages 
         JOIN user 
         ON user.id=messages.idSender 
-        where (idSender=`+ req.infoInToken.userId+" and idReceiver="+idReceiver+ ") or (idReceiver="+ req.infoInToken.userId+" and idSender="+idReceiver+")")
+        where messages.date > ? and (( idSender=? and idReceiver=?) or (idReceiver=? and idSender=?))`, 
+        [time,req.infoInToken.userId,idReceiver, req.infoInToken.userId,idReceiver  ])
         database.disConnect();
         res.send(chat)
         return 

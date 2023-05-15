@@ -78,5 +78,18 @@ routerMessages.delete('/',async (req, res) =>{
         res.send({message:"error delete dialogue"})
     }
 })
-
+routerMessages.delete('/messages',async (req, res) =>{
+    let companionId = req.query.companionId
+    let id=req.query.id
+    database.connect();
+    try{
+        const deleteDialogue = await database.query("DELETE FROM messages WHERE idSender="+req.infoInToken.userId+ " and idReceiver="+companionId+ " and id="+id+ "  or idReceiver="+req.infoInToken.userId+" and idSender="+companionId+" and id="+id )
+        database.disConnect();
+        res.send({message:"done"})
+        return 
+    } catch (error){
+        console.log("Error")
+        res.send({message:"error delete messages"})
+    }
+})
 module.exports=routerMessages

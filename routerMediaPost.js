@@ -9,7 +9,7 @@ const database= require("./database")
 
 const STATE_PRIVATE_ACCOUNT = 1
 const STATE_WAITING_FOR_RESPONSE = 2
-
+const STATE_YOU_ARE_FRIEND = 3
 
 
 routerMediaPost.get("/",async(req,res)=>{
@@ -54,14 +54,19 @@ routerMediaPost.get("/",async(req,res)=>{
                 });
             return 
         }
-        else{
+        else if(friend.length==0){
             res.send({
                 message:"This is a private account, subscribe to see publications",
                 code:STATE_PRIVATE_ACCOUNT
-        });
+            });
             database.disConnect();
             return 
-       }
+       }else{
+        const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
+        database.disConnect();
+        res.send(posts)
+        return 
+    }
     }else{
         const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
         database.disConnect();

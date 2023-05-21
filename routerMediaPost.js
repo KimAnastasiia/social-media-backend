@@ -9,7 +9,6 @@ const database= require("./database")
 
 const STATE_PRIVATE_ACCOUNT = 1
 const STATE_WAITING_FOR_RESPONSE = 2
-const STATE_YOU_ARE_FRIEND = 3
 
 
 routerMediaPost.get("/",async(req,res)=>{
@@ -77,7 +76,23 @@ routerMediaPost.get("/",async(req,res)=>{
    
   
 })
-
+routerMediaPost.get("/lastPost",async(req,res)=>{
+    database.connect();
+    let userId = req.query.userId
+    try{
+        const post=await database.query(`SELECT post.id AS postId , user.id as userId, comment, date, name, surname,uniqueName, lastTimeConnected 
+        FROM post 
+        JOIN user
+        ON user.id = post.userId
+        WHERE userId =?
+        ORDER BY post.id DESC LIMIT 1`,[userId])
+        database.disConnect()
+        res.send(post)
+    }catch (error){
+        console.log("Error")
+        res.send({message:"error"})
+    }
+})
 routerMediaPost.post('/', (req, res) => {
 
     const d = Date.now();

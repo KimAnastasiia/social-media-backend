@@ -1,68 +1,52 @@
 
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
-const crypto = require('crypto');
 const routerPostLike = express.Router();
-const sharp = require('sharp');
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
+const database= require("./database")
 
-routerPostLike.get("/:postId",(req,res)=>{
+
+routerPostLike.get("/:postId",async(req,res)=>{
 
     let postId = req.params.postId
+    database.connect();
 
-    mysqlConnection.query("SELECT * from likesofpost where userId="+req.infoInToken.userId+" and postId="+postId, (err, rows) => {
+    try{
+        const postsLikes=await database.query("SELECT * from likesofpost where userId=? and postId=?", [req.infoInToken.userId,postId ])
+        database.disConnect();
+        return res.send(postsLikes)
+    }catch(err){
+        database.disConnect();
+        return res.send({error:err});
+    }
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
 })
 
-routerPostLike.post('/', (req, res) => {
+routerPostLike.post('/',async (req, res) => {
 
     let postId  = req.body.postId
-    mysqlConnection.query("SELECT * FROM likesofpost WHERE userId = "+req.infoInToken.userId+" AND postId = "+postId+"", (errLikesOfPost, rowsLikesOfPost) => {
 
-        if (errLikesOfPost){
-            res.send({error:errLikesOfPost});
-            return 
-        }  
-        if(rowsLikesOfPost.length==0){
-            mysqlConnection.query("INSERT INTO likesofpost ( userId, postId ) VALUES ("+req.infoInToken.userId+","+postId+") ", (err, rows) => {
+    database.connect();
 
-                if (err){
-                    res.send({error: err});
-                    return ;
-                }
-                else{
-                res.send(
-                    {
-                        messege:"done",
-                        rows: rows
-                    })
-                }
-            })
+    try{
+        const likesOfPost=await database.query("SELECT * FROM likesofpost WHERE userId =? AND postId = ?", [req.infoInToken.userId,postId ])
+        if(likesOfPost.length==0){
+            const inseretLike= await database.query("INSERT INTO likesofpost ( userId, postId ) VALUES (?,?) ", [req.infoInToken.userId,postId ])
+            database.disConnect();
+            return res.send(
+                {
+                    messege:"done",
+                    rows: inseretLike
+                })
+            
         }else{
-            mysqlConnection.query("DELETE FROM likesofpost WHERE postId="+postId+" and userId="+req.infoInToken.userId+"",(err,rows)=>{
-                if (err){
-                    res.send({error: err});
-                    return ;
-                }
-                else{
-                    console.log(rows)
-                }
-                res.send({messege:"done"})
-            })
+            await database.query("DELETE FROM likesofpost WHERE postId=? and userId=?", [postId, req.infoInToken.userId ])
+            database.disConnect();
+            return res.send({messege:"done"})
         }
-    })
+    }catch(err){
+        database.disConnect();
+        return res.send({error:err});
+    }
     
-
 })
 
 module.exports=routerPostLike

@@ -1,13 +1,8 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
-const crypto = require('crypto');
 const routerPublicMediaPost = express.Router();
-const sharp = require('sharp');
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
 const database= require("./database")
 
-routerPublicMediaPost.get("/",(req,res)=>{
+routerPublicMediaPost.get("/",async(req,res)=>{
     
     let sqlQuery="SELECT * FROM post"
 
@@ -16,16 +11,16 @@ routerPublicMediaPost.get("/",(req,res)=>{
         sqlQuery= "SELECT * FROM post where userId="+userId
     }
  
+    database.connect();
 
-    mysqlConnection.query(sqlQuery, (err, rows) => {
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-        res.send(rows)
-    })
+    try{
+        const post=await database.query(sqlQuery)
+        database.disConnect()
+        return res.send(post)
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
 
 
@@ -36,46 +31,47 @@ routerPublicMediaPost.get("/postes",async(req,res)=>{
     let userId = req.query.userId
 
     database.connect();
-    const users = await database.query("SELECT * FROM user where id="+userId)
+
+    const users = await database.query("SELECT * FROM user where id=?",[userId])
     if(users[0].close==1){
-        res.send({close:true});
         database.disConnect();
-        return 
+        return res.send({close:true});
+    }else{
+        const posts = await database.query("SELECT * FROM post where userId=? ORDER BY id DESC  LIMIT 6 OFFSET ?", [userId, p])
+        database.disConnect();
+        return res.send(posts)
     }
-    const posts = await database.query("SELECT * FROM post where userId="+userId+ " LIMIT 6 OFFSET "+p)
-    database.disConnect();
-    res.send(posts)
   
 })
-routerPublicMediaPost.get("/count",(req,res)=>{
+
+
+routerPublicMediaPost.get("/count",async(req,res)=>{
 
     let id = req.query.id
-    mysqlConnection.query('SELECT COUNT(*) AS number FROM post WHERE userId=' +id, (err, rows) => {
+    database.connect();
 
-        if (err){
-            res.send({error:err});
-            return
-        }
-        else{
-            res.send(rows)
-        }
-    })
+    try{
+        let countPost=await database.query('SELECT COUNT(*) AS number FROM post WHERE userId=?', [id])
+        database.disConnect();
+        return res.send(countPost)
+    }catch(error){
+        database.disConnect();
+        return res.send({error:error});
+    }
 })
 
-routerPublicMediaPost.get("/:id",(req,res)=>{
+routerPublicMediaPost.get("/:id",async(req,res)=>{
 
     let id = req.params.id
+    database.connect();
 
-    mysqlConnection.query("SELECT * FROM post where id="+id+"", (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
+    try{
+        const post= await database.query("SELECT * FROM post where id=?", [id])
+        database.disConnect();
+        return res.send(post);
+    }catch(error){
+        database.disConnect();
+        return res.send({error:error});
+    }
 })
 module.exports=routerPublicMediaPost

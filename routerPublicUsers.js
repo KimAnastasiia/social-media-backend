@@ -7,14 +7,14 @@ let algorithm = 'aes256'
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 let fs=require("fs")
+const database= require("./database")
 
-
-routerPublicUsers.get("/",(req,res)=>{
+routerPublicUsers.get("/",async(req,res)=>{
 
     let emailUser = req.query.email
     let name = req.query.name
     let id= req.query.id
-
+    database.connect();
     let sqlQuery="SELECT name, id, uniqueName FROM user"
 
     if(emailUser!=undefined){
@@ -29,17 +29,15 @@ routerPublicUsers.get("/",(req,res)=>{
         sqlQuery="SELECT name, id, uniqueName, email FROM user where id ="+id
     }
 
-    mysqlConnection.query(sqlQuery, (err, rows) => {
+    try{
+        const rows = await database.query(sqlQuery)
+        database.disConnect()
+        return res.send(rows)
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
  
 })
 routerPublicUsers.get("/uniqueName",(req,res)=>{
@@ -79,7 +77,7 @@ routerPublicUsers.get("/email",(req,res)=>{
         if(rows.length>0){
             res.send({
                 messege:"email already in use",
-                errorEmail: "error in email name"
+                errorEmail: "error in email"
             });
             return 
         }else {

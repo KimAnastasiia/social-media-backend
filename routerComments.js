@@ -5,7 +5,7 @@ const routerComments = express.Router();
 const sharp = require('sharp');
 const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
-
+const database= require("./database")
 
 routerComments.delete("/:id/:commentId/:userIdOfPublication",(req,res)=>{
     let postId = req.params.id
@@ -57,48 +57,47 @@ routerComments.delete("/:id/:commentId/:userIdOfPublication",(req,res)=>{
 
 })
 
-routerComments.post('/', (req, res) => {
+routerComments.post('/',async (req, res) => {
 
     let postId  = req.body.postId
     let comment  = req.body.comment
     const d = Date.now();
-    
-    mysqlConnection.query("INSERT INTO comment ( userId, postId, comment, date ) VALUES ("+req.infoInToken.userId+","+postId+",'"+comment+"',"+d+") ", (err, rows) => {
+    database.connect();
+    try{
+    const comments =await database.query("INSERT INTO comment ( userId, postId, comment, date ) VALUES (?, ?, ?, ?)", [req.infoInToken.userId,postId,comment,d])
+    database.disConnect()
+    res.send(
+        {
+            messege:"done",
+            rows: comments
+        })
 
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-        res.send(
-            {
-                messege:"done",
-                rows: rows
-            })
-        }
-    })
+    }catch(error){
+        res.send({error: error});
+        return ;
+    }
 
 })
-routerComments.put('/:id', (req, res) => {
+routerComments.put('/:id',async (req, res) => {
 
     let comment = req.body.comment
     let postId = req.body.postId
     let id = req.params.id
-    mysqlConnection.query("UPDATE comment SET comment= '"+comment+"' WHERE postId= "+postId+" and userId="+req.infoInToken.userId+" and id="+id, (err, rows) => {
+    database.connect();
 
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
+    try{
+        const updatedComment =await database.query("UPDATE comment SET comment=? WHERE postId=? and userId=? and id=?", [comment,postId,req.infoInToken.userId,id])
+        database.disConnect()
         res.send(
             {
                 messege:"done",
-                rows: rows,
-              
+                rows: updatedComment
             })
+    
+        }catch(error){
+            res.send({error: error});
+            return ;
         }
-    })
 
 })
 

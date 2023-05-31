@@ -1,42 +1,24 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
-const crypto = require('crypto');
 const routerPublicPostLike = express.Router();
-const sharp = require('sharp');
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
+const database= require("./database")
 
-routerPublicPostLike.get("/:postId",(req,res)=>{
+
+routerPublicPostLike.get("/:postId",async(req,res)=>{
 
     let postId = req.params.postId
+    database.connect();
 
-    mysqlConnection.query(`SELECT COUNT(id) as totalLikes FROM likesofpost
-    WHERE postId =` + postId, (errCount, rowsCount) => {
 
-        if (errCount){
-            res.send({error:errCount});
-            return 
-        } else {
-            mysqlConnection.query(`SELECT user.uniqueName
-            from likesofpost
-            JOIN user 
-            ON likesofpost.userid = user.id
-            WHERE likesofpost.postId =`+postId, (errName, rowsName) => {
-    
-            if (errName){
-                res.send({error:errName});
-                return 
-            } else {
-                console.log(rowsName);
-            }
-    
-            res.send({
-                rowsCount:rowsCount,
-                rowsName:rowsName
-            })
+    try{
+        const rowsCount = await database.query(`SELECT COUNT(id) as totalLikes FROM likesofpost WHERE postId =?`,[postId])
+        database.disConnect()
+        return res.send({
+            rowsCount:rowsCount
         })
-        }
-    })
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
     
 })
 

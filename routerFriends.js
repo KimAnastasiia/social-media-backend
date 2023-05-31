@@ -8,115 +8,144 @@ const objectOfApiKey = require("./objectApiKey")
 const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
 const database= require("./database")
-routerFriends.get("/",(req,res)=>{
+
+
+
+routerFriends.get("/",async(req,res)=>{
 
     let followingId = req.query.followingId
-    mysqlConnection.query("SELECT * from friends WHERE followers="+req.infoInToken.userId+" and following="+followingId, (err, rows) => {
+    if(followingId!=req.infoInToken.userId){
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else if(rows.length>0){
-            res.send({message:true});
-            return 
-        }else if(rows.length==0){
-            res.send({message:false});
-            return 
+        database.connect();
+
+        try{
+            let friends=await database.query("SELECT * from friends WHERE followers=? and following=?",[req.infoInToken.userId, followingId ])
+            
+            if(friends.length>0){
+                database.disConnect()
+                return  res.send({message:true});
+            }else if(friends.length==0){
+                database.disConnect()
+                return res.send({message:false});
+            }
+        }catch(error){
+            return  res.send({error:error});
         }
-    })
+    }
 })
+
+
+
 routerFriends.get("/subscriptionRequests",async(req,res)=>{
+
     database.connect();
-    const subscriptionRequests = await database.query("SELECT * FROM friends JOIN user ON friends.followers=user.id where following="+req.infoInToken.userId+" and subscription = 0")
-    database.disConnect();
-    res.send(subscriptionRequests)
-    return 
+    try{
+
+        const subscriptionRequests = await database.query("SELECT * FROM friends JOIN user ON friends.followers=user.id where following="+req.infoInToken.userId+" and subscription = 0")
+        database.disConnect();
+        return res.send(subscriptionRequests)
+
+    }catch(error){
+        return  res.send({error:error});
+      
+    }
+
 })
-routerFriends.post("/",(req,res)=>{
+
+
+
+routerFriends.post("/",async(req,res)=>{
 
     let followingId = req.body.followingId
     const d = Date.now();
-    mysqlConnection.query("SELECT * from friends WHERE following="+followingId+" and followers="+req.infoInToken.userId, (errUserFriend, rowsUserFriend) => {
+    database.connect();
 
-        if (errUserFriend){
-            res.send({error:errUserFriend});
-            return 
-        } else if(rowsUserFriend.length>0){
-            res.send({message:"You are already following this user"});
-            return 
+    try{
+        
+        const userFriend = await database.query("SELECT * from friends WHERE following=? and followers=?", [followingId,req.infoInToken.userId ])
+        
+        if(userFriend.length>0){
+            database.disConnect()
+            return res.send({message:"You are already following this user"});
         }else{
-            mysqlConnection.query("INSERT INTO friends ( followers, following, subscription, date ) VALUES ("+req.infoInToken.userId+","+followingId+", false,"+d+" ) ", (err, rows) => {
-
-                if (err){
-                    res.send({error: err});
-                    return ;
-                }
-                else{
-                res.send(
-                    {
-                        message:"done",
-                        rows: rows
-                    })
-                }
-            })
+           
+            const insertedUser= await database.query("INSERT INTO friends ( followers, following, subscription, date ) VALUES (?, ?, false, ?) ",[req.infoInToken.userId,followingId,d])
+            database.disConnect()
+            return res.send(
+                {
+                    message:"done",
+                    rows: insertedUser
+                })
         }
-    })
+
+    }catch(error){
+        return res.send({error:error});
+    }
 })
+
+
 routerFriends.put('/', async(req, res) => {
     let followerId=req.body.followerId
     database.connect();
     try{
-        const row = await database.query("UPDATE friends SET subscription=1 where following="+req.infoInToken.userId+" and followers= "+followerId)
+        await database.query("UPDATE friends SET subscription=1 where following=? and followers=?", [req.infoInToken.userId,followerId ])
         database.disConnect();
-        res.send({message:"done"})
-        return 
+        return res.send({message:"done"})
+      
     } catch (error){
         console.log("Error")
-        res.send({message:"error while accepting friend request"})
+        return res.send({message:"error while accepting friend request"})
     }
 })
-routerFriends.delete("/followers",(req,res)=>{
+
+
+
+
+routerFriends.delete("/followers",async(req,res)=>{
 
     let followersId = req.query.followersId
-    mysqlConnection.query("DELETE FROM friends WHERE followers="+followersId+" and following="+req.infoInToken.userId+"",(err,rows)=>{
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-            console.log(rows)
-        }
-        res.send({messege:"done"})
-    })
+    database.connect();
+    try{
+        await database.query("DELETE FROM friends WHERE followers=? and following=?",[followersId,req.infoInToken.userId ])
+        database.disConnect();
+        return res.send({message:"done"})
+      
+    } catch (error){
+        return res.send({error: error});
+    }
 })
-routerFriends.delete("/following",(req,res)=>{
+
+
+
+routerFriends.delete("/following",async(req,res)=>{
 
     let followingId = req.query.followingId
-    mysqlConnection.query("DELETE FROM friends WHERE following="+followingId+" and followers="+req.infoInToken.userId+"",(err,rows)=>{
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-            console.log(rows)
-        }
-        res.send({messege:"done"})
-    })
+    database.connect();
+    try{
+        await database.query("DELETE FROM friends WHERE following=? and followers=?",[followingId,req.infoInToken.userId ])
+        database.disConnect();
+        return res.send({message:"done"})
+      
+    } catch (error){
+        return res.send({error: error});
+    }
 })
-routerFriends.delete("/",(req,res)=>{
+
+
+
+routerFriends.delete("/",async(req,res)=>{
 
     let followingId = req.query.followingId
+    database.connect();
+    try{
+        await database.query("DELETE FROM friends WHERE followers=? and following=?",[req.infoInToken.userId, followingId ])
+        database.disConnect();
+        return res.send({message:"done"})
+      
+    } catch (error){
+        return res.send({error: error});
+    }
 
-    mysqlConnection.query("DELETE FROM friends WHERE followers="+req.infoInToken.userId+" and following="+followingId+"",(err,rows)=>{
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-            console.log(rows)
-        }
-        res.send({messege:"done"})
-    })
 })
 
 module.exports=routerFriends

@@ -1,49 +1,44 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
 const crypto = require('crypto');
 const routerUsers = express.Router();
 let keyEncrypt = 'password';
 let algorithm = 'aes256'
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
 const sharp = require('sharp');
+const database= require("./database")
 
-routerUsers.get("/",(req,res)=>{
-
-
-    mysqlConnection.query("SELECT name, surname, phoneNumber, id, email, uniqueName, presentation from user WHERE id="+req.infoInToken.userId+"", (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
+routerUsers.get("/",async(req,res)=>{
+    database.connect();
+    try{
+        const user= await database.query("SELECT name, surname, phoneNumber, id, email, uniqueName, presentation from user WHERE id=?", [req.infoInToken.userId])
+        database.disConnect()
+        return  res.send(user)
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
 
-routerUsers.put("/",(req,res)=>{
+routerUsers.put("/",async(req,res)=>{
     let name = req.body.name
     let surname = req.body.surname
     let phoneNumber = req.body.phoneNumber
     let email = req.body.email
     let uniqueName = req.body.uniqueName
     let presentation = req.body.presentation
+    database.connect()
 
-    mysqlConnection.query("UPDATE user SET name= '"+name+"', surname='"+surname+"', phoneNumber='"+phoneNumber+"', email='"+email+"', uniqueName='"+uniqueName+"', presentation='"+presentation+"' where id= "+req.infoInToken.userId, (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {                
-            res.send({message:"done"});
-        }
-
-    })
+    try{
+        await database.query("UPDATE user SET name=?, surname=?, phoneNumber=?, email=?, uniqueName=?, presentation=? where id=? ", [name, surname, phoneNumber, email, uniqueName,  presentation, req.infoInToken.userId])
+        database.disConnect()
+        return res.send({message:"done"});
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 
 })
+
+
 routerUsers.put("/photo",(req,res)=>{
     let img = req.files.myImage
     if (img != null) {
@@ -68,55 +63,55 @@ routerUsers.put("/photo",(req,res)=>{
         )
     }
 })
-routerUsers.put("/password",(req,res)=>{
+
+routerUsers.put("/password",async(req,res)=>{
   
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
-    mysqlConnection.query("UPDATE user SET password='"+passwordEncript+"' where id= "+req.infoInToken.userId, (err, rows) => {
+    database.connect()
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            res.send({message:"done"});
-            console.log(rows);
-        }
-
-    })
+    try{
+        await database.query("UPDATE user SET password=? where id=?", [passwordEncript, req.infoInToken.userId])
+        database.disConnect()
+        return res.send({message:"done"});
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
-routerUsers.post("/checkPassword",(req,res)=>{
+routerUsers.post("/checkPassword",async(req,res)=>{
 
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
-    
-    mysqlConnection.query("SELECT * FROM user where id='"+req.infoInToken.userId+"' and password='"+passwordEncript+"'", (err, rows) => {
-        if (err){
-            res.send({error: err});
-            return;
-        }
-        if(rows.length>=1 ){
-            res.send({ message:"right"})
+    database.connect()
+
+    try{
+        const user = await database.query("SELECT * FROM user where id=? and password=?", [req.infoInToken.userId, passwordEncript])
+        if(user.length>=1 ){
+            database.disConnect()
+            return res.send({ message:"right"})
         }else{
-            res.send({ error:"Error" })
+            database.disConnect()
+            return res.send({ error:"Error" })
         }
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
     }
-    )
 })
-routerUsers.put("/private",(req,res)=>{
+routerUsers.put("/private",async(req,res)=>{
   
     let private = req.body.private
-    mysqlConnection.query("UPDATE user SET close="+private+" where id= "+req.infoInToken.userId, (err, rows) => {
-
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            res.send({message:"done"});
-            console.log(rows);
-        }
-
-    })
+    database.connect()
+    try{
+        await database.query("UPDATE user SET close=? where id=?", [private, req.infoInToken.userId])
+        database.disConnect()
+        return res.send({message:"done"});
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
 module.exports=routerUsers

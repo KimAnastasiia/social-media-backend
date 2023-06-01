@@ -1,58 +1,35 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
-const crypto = require('crypto');
 const routerComments = express.Router();
-const sharp = require('sharp');
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
 const database= require("./database")
 
-routerComments.delete("/:id/:commentId/:userIdOfPublication",(req,res)=>{
+routerComments.delete("/:id/:commentId/:userIdOfPublication",async(req,res)=>{
     let postId = req.params.id
     let id = req.params.commentId
     let userIdOfPublication = req.params.userIdOfPublication
 
-    if(userIdOfPublication==req.infoInToken.userId){
 
-        mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+" and commentId="+id,(errLikesForComments,rowsLikesForComments)=>{
-            if (errLikesForComments){
-                res.send({error: errLikesForComments});
-                return ;
-            }
-            else{
-                mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+" and id="+id,(err,rows)=>{
-                    if (err){
-                        res.send({error: err});
-                        return ;
-                    }
-                    else{
-                        console.log(rows)
-                    }
-                    res.send({messege:"done"})
-                })
-            }
-        })
+    database.connect()
+
+    if(userIdOfPublication==req.infoInToken.userId){
+        try{
+            await database.query("DELETE FROM likesforcomments WHERE postId=? and commentId=?", [postId,id ])
+            await database.query("DELETE FROM comment WHERE postId=? and id=?", [postId,id ])
+            database.disConnect()
+            return res.send({messege:"done"})
+        }catch(error){
+            database.disConnect()
+            return res.send({error:error});
+        }
     }else{
-        mysqlConnection.query("DELETE FROM likesforcomments WHERE postId="+postId+" and commentId="+id,(errLikesForComments,rowsLikesForComments)=>{
-            if (errLikesForComments){
-                res.send({error: errLikesForComments});
-                return ;
-            }
-            else{
-                mysqlConnection.query("DELETE FROM comment WHERE postId="+postId+" and userId="+req.infoInToken.userId+" and id="+id,(err,rows)=>{
-                    if (err){
-                        res.send({error: err});
-                        return ;
-                    }
-                    else{
-                        console.log(rows)
-                    }
-                    res.send({messege:"done"})
-                })
-            }
-           
-        })
-      
+        try{
+            await database.query("DELETE FROM likesforcomments WHERE postId=? and commentId=?", [postId, id ])
+            await database.query("DELETE FROM comment WHERE postId=? and userId=? and id=?", [postId, req.infoInToken.userId, id ])
+            database.disConnect()
+            return res.send({messege:"done"})
+        }catch(error){
+            database.disConnect()
+            return res.send({error:error});
+        }
     }
 
 })

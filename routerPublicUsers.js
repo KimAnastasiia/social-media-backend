@@ -1,5 +1,4 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
 const crypto = require('crypto');
 const routerPublicUsers = express.Router();
 let keyEncrypt = 'password';
@@ -40,135 +39,122 @@ routerPublicUsers.get("/",async(req,res)=>{
 
  
 })
-routerPublicUsers.get("/uniqueName",(req,res)=>{
+routerPublicUsers.get("/uniqueName",async(req,res)=>{
 
     let uniqueName = req.query.uniqueName
+    database.connect()
 
-    mysqlConnection.query("SELECT uniqueName, name from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
 
-        if (err){
-            res.send({error:err});
-            return 
-        } 
-        if(rows.length>0){
-            res.send({
-                messege:"uniqueName already in use",
-                errorUniqueName: "error in unique name"
-            });
-            return 
-        }else {
-            console.log(rows);
-        
-        }
-
-        res.send(rows)
-    })
+    try{
+        const rows = await database.query("SELECT uniqueName, name from user WHERE uniqueName=?", [uniqueName])
+        database.disConnect()
+        return res.send(rows)
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
-routerPublicUsers.get("/email",(req,res)=>{
 
+
+routerPublicUsers.get("/email",async(req,res)=>{
     let email = req.query.email
+    database.connect()
 
-    mysqlConnection.query("SELECT email from user WHERE email='"+email+"'", (err, rows) => {
+    try{
+        const rows = await database.query("SELECT email from user WHERE email=?", [email])
 
-        if (err){
-            res.send({error:err});
-            return 
-        } 
         if(rows.length>0){
-            res.send({
+            return res.send({
                 messege:"email already in use",
                 errorEmail: "error in email"
             });
-            return 
-        }else {
-            console.log(rows);
-        
+             
+        }else{
+            database.disConnect()
+            return res.send(rows)
         }
-
-        res.send(rows)
-    })
+   
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
+
+
 routerPublicUsers.get("/avatar",(req,res)=>{
 
     let id = req.query.id
     let nameOfImg=id+"avatar.png"
     if (fs.existsSync("./public/images/"+nameOfImg)) {
-        res.send({message:true});
-        return 
+        return res.send({message:true});
+         
     }else{
-        res.send({message:false});
-        return 
+        return res.send({message:false});
     }
 
 })
 
-routerPublicUsers.get("/:uniqueName",(req,res)=>{
+routerPublicUsers.get("/:uniqueName",async(req,res)=>{
 
     let uniqueName = req.params.uniqueName
+    database.connect()
 
-    mysqlConnection.query("SELECT name, id, email, uniqueName, close, lastTimeConnected from user WHERE uniqueName='"+uniqueName+"'", (err, rows) => {
+    try{
+        const rows = await database.query("SELECT name, id, email, uniqueName, close, lastTimeConnected from user WHERE uniqueName=?", [uniqueName])
+        database.disConnect()
+        return res.send(rows)
 
-        if (err){
-            res.send({error:err});
-            return 
-        } else {
-            console.log(rows);
-        }
-
-        res.send(rows)
-    })
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
+    }
 })
 
-routerPublicUsers.post("/verification",(req,res)=>{
+routerPublicUsers.post("/verification",async(req,res)=>{
     let emailUser = req.body.email  
     let password = req.body.password
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
-    
-    
 
-    mysqlConnection.query("SELECT * FROM user where email= ? and password= ?", [emailUser,passwordEncript] , (err, rows) => {
-        if (err){
-            res.send({error: err});
-            return ;
-        }
-        else{
-            console.log(rows)
-        }
-        if(rows.length>=1 ){
+    database.connect()
 
-            console.log(rows[0].id)
+    try{
+        const user= await database.query("SELECT * FROM user where email= ? and password= ?", [emailUser, passwordEncript])
+        if(user.length>=1 ){
+
+ 
             let apiKey = jwt.sign(
                 { 
                     email: emailUser,
-                    userId: rows[0].id
+                    userId: user[0].id
                 },
                 "secret");
 
             objectOfApiKey.push(apiKey)
 
-            res.send(
+            return res.send(
             {
                 messege:"user",
                 apiKey: apiKey,
-                name:rows[0].name,
-                userId: rows[0].id,
-                email: rows[0].email,
-                uniqueName: rows[0].uniqueName
+                name:user[0].name,
+                userId: user[0].id,
+                email: user[0].email,
+                uniqueName: user[0].uniqueName
             })
         }
-        if(rows.length==0){
-            res.send(
+        else if(user.length==0){
+            return res.send(
             {
-                messege:"Incorrect password",
+                messege:"Incorrect password"
             })
         }
-
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error});
     }
-    )
 })
 
-routerPublicUsers.post("/",(req,res)=>{
+routerPublicUsers.post("/",async(req,res)=>{
 
     let email = req.body.email
     let password = req.body.password
@@ -178,80 +164,55 @@ routerPublicUsers.post("/",(req,res)=>{
     let uniqueName =  req.body.uniqueName
     let cipher = crypto.createCipher(algorithm, keyEncrypt);
     let passwordEncript = cipher.update(password, 'utf8', 'hex') + cipher.final('hex');
+    database.connect()
 
+    try{
+        const emailUser=await database.query("SELECT email FROM user where email =? ", [email])
 
-    mysqlConnection.query("SELECT email FROM user where email ='"+email+"' ", (errUserEmail, rowsUserEmail) => {
-
-        if (errUserEmail){
-            res.send({error:errUserEmail});
-            return 
-        }
-        if(rowsUserEmail.length>0){
-            res.send({
+        if(emailUser.length>0){
+            database.disConnect()
+            return res.send({
                 messege:"email already in use",
                 error: "error in email"
-            });
-            return 
-        }else{
-            mysqlConnection.query("SELECT uniqueName FROM user where uniqueName ='"+uniqueName+"' ", (errUniqueName, rowsUniqueName) => {
-                if (errUniqueName){
-                    res.send({error:errUniqueName});
-                    return 
-                }
-                if(rowsUniqueName.length>0){
-                    res.send({
-                        messege:"uniqueName already in use",
-                        error: "error in unique name"
-                    });
-                    return 
-                }else{
-                        mysqlConnection.query("INSERT INTO user (name, surname, password, phoneNumber, email, uniqueName, close ) VALUES  ('"+name+"','"+surname+"','"+passwordEncript+"', "+phoneNumber+" ,'"+email+"','"+uniqueName+"', false) ", (errPost , rowsPost) => {
-
-                            if (errPost){
-                                res.send({error: errPost});
-                                return ;
-                            }
-                            mysqlConnection.query("SELECT * FROM user where email='"+email+"' and password='"+passwordEncript+"'", (err, rows) => {
-                                
-                                if (err){
-                                    res.send({error: err});
-                                    return ;
-                                }
-                            
-                                
-                                if(rows.length>=1){
-                        
-                                    let apiKey = jwt.sign(
-                                        { 
-                                            email: email,
-                                            userId: rows[0].id
-                        
-                                        },
-                                        "secret");
-                        
-                                    objectOfApiKey.push(apiKey)
-                        
-                                    res.send(
-                                    {
-                                        messege:"user",
-                                        apiKey: apiKey,
-                                        name: rows[0].name,
-                                        userId: rows[0].id,
-                                        uniqueName:  rows[0].uniqueName
-                                    })
-                                    return 
-                                }
-                    
-                        
-                            })
-                    
-                        })
-                    }
             })
-    
+        }else{
+            const uniqueNameUser=await database.query("SELECT uniqueName FROM user where uniqueName =? ", [uniqueName])
+            if(uniqueNameUser.length>0){
+                database.disConnect()
+                return res.send({
+                    messege:"uniqueName already in use",
+                    error: "error in unique name"
+                }) 
+            }else{
+                await database.query("INSERT INTO user (name, surname, password, phoneNumber, email, uniqueName, close ) VALUES  (?, ?, ?, ?, ?, ?, false) ", [name, surname, passwordEncript,phoneNumber,email,uniqueName])
+                const user= await database.query("SELECT * FROM user where email=? and password=?", [email, passwordEncript])   
+                if(user.length>=1){
+        
+                    let apiKey = jwt.sign(
+                        { 
+                            email: email,
+                            userId: user[0].id
+        
+                        },
+                        "secret");
+        
+                    objectOfApiKey.push(apiKey)
+                    database.disConnect()
+                    return res.send(
+                    {
+                        messege:"user",
+                        apiKey: apiKey,
+                        name: user[0].name,
+                        userId: user[0].id,
+                        uniqueName:  user[0].uniqueName
+                    })
+                        
+                }  
+            }
         }
-    })
- 
- 
+    }catch(error){
+        database.disConnect()
+        return res.send({error:error})
+    }
 })
 module.exports=routerPublicUsers

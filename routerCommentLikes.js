@@ -1,10 +1,5 @@
 const express = require('express');
-const mysqlConnection = require("./mysqlConnection")
-const crypto = require('crypto');
 const routerCommentLikes = express.Router();
-const sharp = require('sharp');
-const objectOfApiKey = require("./objectApiKey")
-const jwt = require("jsonwebtoken");
 const database= require("./database")
 
 routerCommentLikes.get("/",async(req,res)=>{
